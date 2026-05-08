@@ -162,3 +162,106 @@ def test_phase_flip_logical_zero_is_plus_plus_plus():
     plus = np.array([1, 1], dtype=complex) / np.sqrt(2)
     expected = np.kron(plus, np.kron(plus, plus))
     assert np.allclose(psi, expected, atol=ATOL)
+
+
+# ===========================================================================
+# Steane [[7, 1, 3]] code
+# ===========================================================================
+from qec.codes import steane  # noqa: E402
+
+
+def test_steane_stabilizer_count_and_strings():
+    assert len(steane.X_STABILIZERS) == 3
+    assert len(steane.Z_STABILIZERS) == 3
+    # Standard Hamming-derived choice.
+    assert steane.X_STABILIZERS_STR == ["IIIXXXX", "IXXIIXX", "XIXIXIX"]
+    assert steane.Z_STABILIZERS_STR == ["IIIZZZZ", "IZZIIZZ", "ZIZIZIZ"]
+
+
+def test_steane_stabilizers_pairwise_commute():
+    from itertools import combinations
+
+    for a, b in combinations(steane.ALL_STABILIZERS, 2):
+        assert a.commutes_with(b), f"{a!r} and {b!r} should commute"
+
+
+def test_steane_logical_operators():
+    for s in steane.ALL_STABILIZERS:
+        assert steane.LOGICAL_X.commutes_with(s)
+        assert steane.LOGICAL_Z.commutes_with(s)
+    assert not steane.LOGICAL_X.commutes_with(steane.LOGICAL_Z)
+
+
+def test_steane_corrects_every_weight_1_error():
+    """Steane is distance 3: every weight-1 Pauli must be corrected exactly."""
+    for E in steane._enumerate_paulis(1):
+        residual = steane.correct(E)
+        lx, lz = steane.is_logical_failure(residual)
+        assert not lx and not lz, f"{E!r} caused logical failure"
+        # Residual must be exactly identity (in symplectic form) for weight-1.
+        assert residual.weight() == 0
+
+
+def test_steane_some_weight_2_errors_fail():
+    """Distance 3: there exist weight-2 errors the decoder gets wrong."""
+    # Two X errors on qubits sharing a Hamming column with one other qubit
+    # alias to the third — known degeneracy. We only assert that *at least
+    # one* weight-2 error fails (full distance proof).
+    failures = 0
+    for E in steane._enumerate_paulis(2):
+        residual = steane.correct(E)
+        lx, lz = steane.is_logical_failure(residual)
+        if lx or lz:
+            failures += 1
+    assert failures > 0, "no weight-2 error caused a logical failure"
+
+
+def test_steane_monte_carlo_scaling():
+    """Sub-threshold logical error rate should scale as O(p^2).
+
+    Specifically: P_L(0.02) / P_L(0.04) should be ~ (0.02/0.04)^2 = 0.25 to
+    within factor 2 in our shot budget.
+    """
+    rng = np.random.default_rng(2026)
+    p_lo = 0.02
+    p_hi = 0.04
+    pl_lo = steane.monte_carlo_logical_error(p_lo, 20_000, rng=rng)
+    pl_hi = steane.monte_carlo_logical_error(p_hi, 20_000, rng=rng)
+    ratio = pl_lo / max(pl_hi, 1e-9)
+    # O(p^2) -> ratio ~ 0.25; allow [0.1, 0.5] to absorb noise.
+    assert 0.1 < ratio < 0.5, f"ratio={ratio} (pl_lo={pl_lo}, pl_hi={pl_hi})"
+
+
+# ===========================================================================
+# Shor [[9, 1, 3]] code
+# ===========================================================================
+from qec.codes import shor  # noqa: E402
+
+
+def test_shor_stabilizers_pairwise_commute():
+    from itertools import combinations
+
+    for a, b in combinations(shor.ALL_STABILIZERS, 2):
+        assert a.commutes_with(b)
+
+
+def test_shor_logical_operators():
+    for s in shor.ALL_STABILIZERS:
+        assert shor.LOGICAL_X.commutes_with(s)
+        assert shor.LOGICAL_Z.commutes_with(s)
+    assert not shor.LOGICAL_X.commutes_with(shor.LOGICAL_Z)
+
+
+def test_shor_corrects_every_weight_1_error():
+    for E in shor._enumerate_paulis(1):
+        residual = shor.correct(E)
+        lx, lz = shor.is_logical_failure(residual)
+        assert not lx and not lz, f"{E!r} caused logical failure"
+
+
+def test_shor_monte_carlo_scaling():
+    rng = np.random.default_rng(2027)
+    pl_lo = shor.monte_carlo_logical_error(0.02, 20_000, rng=rng)
+    pl_hi = shor.monte_carlo_logical_error(0.04, 20_000, rng=rng)
+    ratio = pl_lo / max(pl_hi, 1e-9)
+    assert 0.1 < ratio < 0.5, f"ratio={ratio}"
