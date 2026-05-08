@@ -11,7 +11,7 @@ The running "book" of what I've learned. Each file should be readable cold in 6 
 | 02 | Multi-qubit systems | [`02-multi-qubit.md`](02-multi-qubit.md) | 1 |
 | 03 | Density matrices & mixed states | [`03-density-matrices.md`](03-density-matrices.md) | 1 |
 | 04 | Noise & quantum channels | [`04-noise-channels.md`](04-noise-channels.md) | 2 |
-| 05 | Stabilizer formalism | `05-stabilizer-formalism.md` | 3 |
+| 05 | Stabilizer formalism | [`05-stabilizer-formalism.md`](05-stabilizer-formalism.md) | 3 |
 | 06 | The repetition code | `06-repetition-code.md` | 4 |
 | 07 | The Shor [[9,1,3]] code | `07-shor-9qubit.md` | 5 |
 | 08 | The Steane [[7,1,3]] code | `08-steane-7qubit.md` | 5 |
