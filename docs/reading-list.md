@@ -32,6 +32,11 @@ Entries are grouped by phase; the capstone lit-review document
 
 - Daniel Gottesman. *Stabilizer Codes and Quantum Error Correction.* PhD
   thesis, Caltech, 1997. arXiv:quant-ph/9705052.
+- Peter W. Shor. *Scheme for reducing decoherence in quantum computer
+  memory.* Phys. Rev. A 52, R2493 (1995).
+  doi:10.1103/PhysRevA.52.R2493. — The original 9-qubit code; used in
+  Phase 2.2 to verify single-qubit error correction by exhaustive
+  `Statevector` simulation.
 - Craig Gidney. *Stim: a fast stabilizer circuit simulator.* Quantum 5, 497
   (2021). arXiv:2103.02202. doi:10.22331/q-2021-07-06-497.
 
