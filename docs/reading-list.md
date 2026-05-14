@@ -14,6 +14,10 @@ Entries are grouped by phase; the capstone lit-review document
 
 - David J. C. MacKay. *Information Theory, Inference, and Learning
   Algorithms.* Cambridge University Press, 2003. (Free online.) — Chs. 1–2.
+- Claude E. Shannon. *A Mathematical Theory of Communication.* Bell
+  System Technical Journal 27 (3): 379–423 (1948).
+  doi:10.1002/j.1538-7305.1948.tb01338.x. — Source for the binary
+  symmetric channel capacity formula C = 1 - H_2(p) used in Phase 0.2.
 
 ## Phase 1 — Quantum basics
 
