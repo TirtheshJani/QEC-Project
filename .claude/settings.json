@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(uv sync*)",
+      "Bash(uv run pytest*)",
+      "Bash(uv run ruff*)",
+      "Bash(uv run mypy*)",
+      "Bash(uv run jupyter*)",
+      "Bash(uv run python*)",
+      "Bash(uv add*)",
+      "Bash(uv remove*)",
+      "Bash(uv tree*)",
+      "Bash(python scripts/verify_reading_list.py*)",
+      "Bash(python scripts/update_changelog.py*)",
+      "Bash(python scripts/run_threshold_sweep.py*)",
+      "Bash(bash scripts/install_plugins.sh*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git remote*)",
+      "Bash(ls*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(tree:*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git commit*)",
+      "Bash(git rebase*)",
+      "Bash(git reset*)",
+      "Bash(rm*)"
+    ]
+  }
+}
