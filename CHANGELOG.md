@@ -7,11 +7,13 @@ every session, append to it before stopping.** See
 
 ## Current status
 
-Repository bootstrap complete on branch `claude/init-project-setup-LlShn`.
-Next: run `bash scripts/install_plugins.sh`, then begin Phase 0 —
-`phase-00-foundations/01-linear-algebra/`.
+Phase 0.1 complete. Next: `phase-00-foundations/02-probability/` (discrete
+probability + binary symmetric channel simulation). Branch `main`
+(post-bootstrap merge); commit locally, do not push without explicit ask.
 
 ## Completed milestones
+
+- 2026-05-14  Phase 0.1 (linear algebra): notebook `phase-00-foundations/01-linear-algebra/linear_algebra.ipynb` covering complex vectors, unitarity, Pauli eigendecomposition (eigenvalues +/-1 foreshadowed as measurement outcomes), and Kronecker products by hand + numerical (basis convention pinned: numpy.kron is big-endian, first factor is most-significant qubit). Promoted helpers to `src/qec_project/linalg.py` (PAULI_{I,X,Y,Z}, PAULIS, `is_unitary`, `tensor`, `eigendecompose`) with 14 tests in `tests/test_linalg.py` (hypothesis property test for unitary-tensor-unitary). Plan in `plans/phase-00-01-linear-algebra.md`. pytest 16 passed, ruff clean, notebook executes top-to-bottom, verify_reading_list green.
 
 - 2026-05-14  Repo bootstrap: directory skeleton, build config,
   `src/qec_project/` package, smoke tests, CI workflow, plugin install
