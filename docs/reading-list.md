@@ -18,6 +18,10 @@ Entries are grouped by phase; the capstone lit-review document
   System Technical Journal 27 (3): 379–423 (1948).
   doi:10.1002/j.1538-7305.1948.tb01338.x. — Source for the binary
   symmetric channel capacity formula C = 1 - H_2(p) used in Phase 0.2.
+- Richard W. Hamming. *Error Detecting and Error Correcting Codes.*
+  Bell System Technical Journal 29 (2): 147–160 (1950).
+  doi:10.1002/j.1538-7305.1950.tb00463.x. — Source for the (7, 4)
+  single-error-correcting Hamming code used in Phase 0.3.
 
 ## Phase 1 — Quantum basics
 
