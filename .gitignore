@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Build artefacts
+dist/
+build/
+
+# Notebook outputs (we strip them; raw cells live in source)
+*.nbconvert.ipynb
+
+# QEC sim artefacts
+data/
+results/
+*.npz
+*.npy
+*.stim
+*.dem
+sinter_data/
+sinter_*.csv
+
+# LaTeX
+capstone/paper/*.aux
+capstone/paper/*.log
+capstone/paper/*.out
+capstone/paper/*.bbl
+capstone/paper/*.blg
+capstone/paper/*.toc
+capstone/paper/*.synctex.gz
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Modal / cloud creds
+.modal/
+.env
+.env.local

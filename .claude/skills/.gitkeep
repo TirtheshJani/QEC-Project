@@ -1,0 +1,3 @@
+# Plugin skills are installed via scripts/install_plugins.sh and either land
+# here as symlinks or are discovered from ~/.claude/plugins/. Keep this file
+# so the directory exists in fresh clones.
