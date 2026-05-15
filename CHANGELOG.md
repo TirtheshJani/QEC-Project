@@ -10,6 +10,8 @@ Phase 0-3 *core code* promoted to src/qec_project/ with TDD: classical.py (Hammi
 
 ## Completed milestones
 
+- 2026-05-15  Capstone lit review v1 produced: 5-slice PRISMA-aligned systematic review under capstone/proposal/search-protocol.md, synthesised into capstone/proposal/literature-review.md (~104 unique titles surfaced, 49 admitted with two-URL verification, 42 new entries merged into docs/reading-list.md). G1/G2/G3 gap statement underwrites NRC criterion 4. Two recent-preprint entries (arXiv:2604.12841, 2605.04892) flagged for re-verification against journal versions; two S3 pointer entries (arXiv:2509.01892, 2412.21118) excluded from the bib for not passing the two-URL rule.
+
 - 2026-05-15  Phase 3 promoted: rotated_surface_code_circuit (Stim wrapper) in src/qec_project/codes/surface_code.py and MwpmDecoder (PyMatching wrapper behind Decoder protocol) in src/qec_project/decoders/mwpm.py; illustrative threshold-sweep notebook over d in {3,5} in phase-03-topological-codes/04-threshold-simulation/.
 
 - 2026-05-15  Phase 2 promoted: symplectic Pauli class in src/qec_project/codes/pauli.py (property-tested against 2^n matrix ground truth for n<=3) and Steane [[7,1,3]] in src/qec_project/codes/steane.py (exhaustive distance-3 verification); stabilizer notebook in phase-02-qec-fundamentals/03-stabilizer-formalism/.
@@ -50,6 +52,8 @@ Phase 0-3 *core code* promoted to src/qec_project/ with TDD: classical.py (Hammi
   fabricated identifiers, not flaky network policy).
 
 ## Known limitations
+
+- 2026-05-15  WebFetch and direct API access to arxiv.org, export.arxiv.org, api.crossref.org, and api.semanticscholar.org are HTTP-403-blocked in this remote-execution container (verified 2026-05-15). Lit-review agents work exclusively from WebSearch snippet metadata + two independent corroborating URLs per (title, authors, arXiv ID) triple. Numerical claims (thresholds, latencies, accuracies) from cited papers are NOT transcribed into the repo from this session — citations record paper existence and identity only. Re-verify against PDFs in a session with direct arXiv access before quoting any numerical claim in the capstone paper.
 
 - 2026-05-15  Depolarizing Kraus uses sqrt(p/3) per-Pauli convention (Nielsen and Chuang sec. 8.3.4): maximally mixed at p=3/4, not p=1. Documented in src/qec_project/noise/channels.py and its tests.
 
