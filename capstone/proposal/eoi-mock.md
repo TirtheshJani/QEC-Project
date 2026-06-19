@@ -35,6 +35,16 @@ QEC and fault tolerance — *Decoding algorithm optimization.*
 `capstone/experiments/` with a fixed seed and is recorded in `CHANGELOG.md`'s
 accuracy table together with the commit SHA.
 
+**Progress (Phase 3, complete).** Step 1 is built and validated end to end: a
+rotated-surface-code threshold study comparing **MWPM (PyMatching)** and **BP+OSD
+(ldpc)** under uniform circuit-level depolarizing noise (Stim + an in-process,
+seeded Monte-Carlo harness; resumable CSV + provenance manifests). MWPM reproduces a
+clean threshold crossing at $p_\mathrm{th}\approx 0.0119$ (finite-size fit
+$0.0122\pm0.0013$) with sub-threshold suppression $\Lambda_{3\to5}=5.8$; BP+OSD
+reaches a higher threshold ($\approx 0.0132$) and ~35% lower logical error at $d=5$,
+but at ~600× the per-shot decode latency. Figures: `capstone/figures/`; data and
+provenance: `capstone/experiments/`.
+
 ## 2. Project team and resources
 
 > Annex A: roles, ability, capacity, EDI, synergies with NRC.
@@ -84,6 +94,9 @@ picked at Phase 5 exit.
 - A preprint on arXiv quant-ph.
 - One demonstrated decoder/scheduling improvement on the chosen knob, with
   quantified accuracy and latency tradeoff.
+- *Already demonstrated (Phase 3):* a controlled MWPM-vs-BP+OSD head-to-head that
+  quantifies the accuracy/latency frontier — BP+OSD ~35% lower $p_L$ at $d=5$ for
+  ~600× the decode time — on an identical Stim noise model.
 
 ## 6. Economic and social impacts
 
@@ -96,9 +109,14 @@ shorter syndrome-extraction cycles and lower physical-qubit overhead at a
 given logical error budget; published estimates put the implied saving for a
 useful FT processor in the millions of physical qubits.
 
-*(Fill with quantitative estimate after Phase 5 — e.g., "our preferred
-variant achieves the same logical error rate as MWPM at X% of the wall-clock
-cost on a representative SI1000 noise model.")*
+*Quantitative anchor (Phase 3 result).* On the uniform-depolarizing baseline,
+BP+OSD attains ~35% lower logical error than MWPM at $d=5$, $p=0.005$
+($p_L \approx 1.9\times10^{-3}$ vs $3.0\times10^{-3}$) but at ~600× the per-shot
+decode time (~5400 µs vs ~9 µs), and that latency gap widens with distance (~58× at
+$d=3$). At fixed accuracy, MWPM's ~$10^3$× lower latency is what keeps it on the
+real-time critical path; pinning down exactly where a more accurate decoder stops
+being real-time-feasible is the contribution. Full SI1000 / biased-noise estimates
+follow in Phase 5.
 
 ## 7. NRC collaboration
 

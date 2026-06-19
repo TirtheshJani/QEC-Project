@@ -21,19 +21,31 @@ curriculum builds tooling around it.
 
 ## Deliverables
 
-- [ ] `01-toric-and-surface/`: construct the rotated surface code at
-      $d \\in \\{3,5,7\\}$ programmatically; visualize stabilizers.
-- [ ] `02-syndrome-extraction/`: build the depth-6 stabilizer-measurement
-      circuit in Stim; sample syndromes; verify boundary conditions.
-- [ ] `03-mwpm-pymatching/`: end-to-end pipeline: `stim.Circuit` →
-      detector data → `Matching.decode_batch` → logical error rate. Lives in
-      `src/qec_project/decoders/mwpm.py` behind the common `decode()`
-      interface.
-- [ ] `04-threshold-simulation/`: replicate the textbook crossing plot using
-      `sinter`. Append each run as an Accuracy table entry via
-      `python scripts/update_changelog.py --kind accuracy ...`.
-- [ ] Phase entry in `CHANGELOG.md`. ~15 references in
+- [x] `01-toric-and-surface/`: construct the rotated surface code at
+      $d \\in \\{3,5,7\\}$ programmatically; visualize the check lattice. Promoted
+      `qec_project.codes.surface.RotatedSurfaceCode`.
+- [x] `02-syndrome-extraction/`: sample the detector stream in Stim; verify the
+      noiseless circuit fires no detectors; show detection density vs $p$.
+- [x] `03-mwpm-pymatching/`: end-to-end pipeline `stim.Circuit` → DEM →
+      `Matching.decode_batch` → logical error rate. Promoted
+      `qec_project.decoders.pymatching_decoder` + `qec_project.decoders.harness`.
+- [x] `04-threshold-simulation/`: the textbook crossing plot from the
+      `capstone/experiments/` sweeps, plus the **MWPM vs BP+OSD** benchmark.
+      Accuracy entries appended via `scripts/run_threshold_sweep.py --changelog`.
+- [x] Phase entry in `CHANGELOG.md`; surface-code/decoder references in
       `docs/reading-list.md`.
+
+## Result (uniform depolarizing noise, seed 42)
+
+| Decoder | $p_\\mathrm{th}$ (fit) | $\\Lambda_{3\\to5}$ | latency @ d=5 |
+| --- | --- | --- | --- |
+| MWPM (PyMatching) | $0.0122 \\pm 0.0013$ | 5.8 | ~9 µs/shot |
+| BP+OSD (ldpc) | $0.0134 \\pm 0.0015$ | 6.3 | ~5400 µs/shot (~600× slower) |
+
+Figures in `capstone/figures/`; reproduce via `capstone/experiments/README.md`.
+The decoders were driven **in-process** (not `sinter.collect`, which is incompatible
+with NumPy 2.x here — see `CHANGELOG.md`). The threshold is specific to the
+uniform-depolarizing model, not a published circuit-level number.
 
 ## Workflow hints
 

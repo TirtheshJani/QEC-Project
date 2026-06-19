@@ -28,6 +28,31 @@ targeting NRC's *Decoding algorithm optimization* objective. Budget:
 | [Phase 5](phase-05-advanced-decoders/) | BP+OSD, Union-Find, neural decoders, qLDPC | ~4 wks |
 | [Capstone](capstone/) | Decoder benchmark study + arXiv preprint + mock EOI | ~6–8 wks |
 
+**Status:** Phases 0–3 complete (foundations → a runnable surface-code decoder
+benchmark); Phases 4–5 + the written EOI are the roadmap.
+
+## Results so far — the capstone decoder benchmark
+
+The capstone payload **runs end to end**: a reproducible rotated-surface-code
+threshold study comparing **MWPM (PyMatching)** and **BP+OSD (ldpc)** under uniform
+circuit-level depolarizing noise, built on Stim with an in-process, explicitly
+seeded Monte-Carlo harness.
+
+![Surface-code threshold crossing under MWPM](capstone/figures/threshold_depolarizing_pymatching.png)
+
+| Decoder | threshold $p_\mathrm{th}$ | suppression $\Lambda_{3\to5}$ | decode latency @ d=5 |
+| --- | --- | --- | --- |
+| MWPM (PyMatching) | $0.0122 \pm 0.0013$ | 5.8× | ~9 µs/shot |
+| BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 6.3× | ~5400 µs/shot (~600× slower) |
+
+Below threshold each $+2$ in code distance suppresses the logical error rate ~4–6×;
+the $d=3,5,7$ curves cross at $p_\mathrm{th}$. BP+OSD is the more accurate decoder
+(higher threshold, ~35% lower $p_L$ at $d=5$) but pays a steep, distance-scaling
+latency cost — exactly the accuracy vs real-time-feasibility frontier the capstone
+targets (NRC *Decoding algorithm optimization*). Every number is seed- and
+commit-stamped in [`CHANGELOG.md`](CHANGELOG.md); reproduce via
+[`capstone/experiments/README.md`](capstone/experiments/README.md).
+
 ## Quickstart
 
 ```bash
