@@ -6,5 +6,6 @@ as `numpy` parity-check matrices for decoder development.
 """
 
 from qec_project.codes.shor9 import Shor9Code
+from qec_project.codes.surface import RotatedSurfaceCode
 
-__all__ = ["Shor9Code"]
+__all__ = ["RotatedSurfaceCode", "Shor9Code"]

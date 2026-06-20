@@ -1,0 +1,58 @@
+{
+  "run_id": "sweep-2026-06-19-pymatching-depolarizing",
+  "argv": [
+    "--decoder",
+    "pymatching",
+    "--noise",
+    "depolarizing",
+    "--distances",
+    "3",
+    "5",
+    "7",
+    "--p-phys",
+    "0.002",
+    "0.003",
+    "0.005",
+    "0.007",
+    "0.01",
+    "0.013",
+    "0.016",
+    "0.02",
+    "0.025",
+    "--shots",
+    "20000",
+    "--max-errors",
+    "2000",
+    "--seed",
+    "42",
+    "--changelog"
+  ],
+  "decoder": "pymatching",
+  "noise": "depolarizing",
+  "distances": [
+    3,
+    5,
+    7
+  ],
+  "p_phys": [
+    0.002,
+    0.003,
+    0.005,
+    0.007,
+    0.01,
+    0.013,
+    0.016,
+    0.02,
+    0.025
+  ],
+  "shots": 20000,
+  "seed": 42,
+  "commit": "678ee59",
+  "timestamp": "2026-06-19T21:47:05.653003",
+  "versions": {
+    "numpy": "2.4.4",
+    "stim": "1.15.0",
+    "pymatching": "2.3.1",
+    "sinter": "1.15.0"
+  }
+}

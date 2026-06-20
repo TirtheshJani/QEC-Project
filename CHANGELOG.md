@@ -6,10 +6,11 @@ every session, append to it before stopping.** See
 `docs/long-running-protocol.md` for the full ritual.
 
 ## Current status
-
-Phase 0 and Phase 1 both complete. Phase 0 (foundations: linear algebra, probability + BSC, classical EC with Hamming(7,4) over BSC) and Phase 1 (quantum basics: qubits + Cliffords, Bell/superdense/teleportation in Qiskit, density matrices + Kraus channels) were built in parallel worktrees on 2026-05-14 and merged together. Next: `phase-02-qec-fundamentals/` (stabilizer formalism, Pauli group machinery; Steane will reuse `qec_project.codes.classical.Hamming74`, the stabilizer simulator will reuse `qec_project.noise.quantum` Kraus channels). Branch `main`; commit locally, do not push without explicit ask.
+Phases 0-3 complete. Phase 3 (rotated surface code + decoder benchmark) adds qec_project.codes.surface (RotatedSurfaceCode over stim.Circuit.generated), qec_project.noise.circuit (CircuitNoise + depolarizing/si1000; biased/leakage are NotImplementedError roadmap), qec_project.decoders (pymatching_decoder, registry, and an in-process Monte-Carlo harness sample_cell), and qec_project.analysis.threshold (per-round rates, threshold crossing + finite-size fit, Lambda, figures). The capstone decoder benchmark runs end to end: MWPM vs BP+OSD on the rotated surface code under uniform circuit-level depolarizing noise, with real threshold figures in capstone/figures/, seed+SHA-stamped accuracy rows, and four executed Phase-3 notebooks. Next: Phase 4 (fault tolerance) and the written EOI; optionally a biased-noise model + Union-Find for the capstone matrix. Branch claude/ecstatic-allen-bp14g8; commit locally, do not push without explicit ask.
 
 ## Completed milestones
+
+- 2026-06-19  Phase 3 (topological codes + decoder benchmark). Promoted qec_project.codes.surface.RotatedSurfaceCode (rotated [[d^2,1,d]] memory via stim.Circuit.generated), qec_project.noise.circuit (CircuitNoise four-knob model + depolarizing/si1000), qec_project.decoders {pymatching_decoder (matching_from_dem/decode_shots), registry (custom_decoders -> ldpc SinterBpOsdDecoder/SinterBeliefFindDecoder), harness.sample_cell (in-process seeded Monte Carlo)}, and qec_project.analysis.threshold (load_points, estimate_threshold, fit_critical, lambda_ratios, plot_threshold_crossing/plot_decoder_comparison). Wired scripts/run_threshold_sweep.py (in-process, ProcessPool, resumable CSV + run.json provenance + --changelog) and scripts/make_figures.py. Ran MWPM (d=3,5,7) and BP+OSD (d=3,5) over p in {0.002..0.025}, 20000 shots/cell, seed 42: MWPM p_th~0.0119 (fit 0.0122+-0.0013), Lambda(3->5)=5.8, Lambda(5->7)=3.9; BP+OSD p_th~0.0132 (fit 0.0134+-0.0015), Lambda(3->5)=6.3. BP+OSD ~35% lower p_L at d=5,p=0.005 but ~600x slower (9 vs 5400 us/shot at d=5). 20 new tests (test_surface/test_decoders/test_threshold; slow physics tests behind -m slow). Four executed notebooks under phase-03-topological-codes/. Figures in capstone/figures/, sweeps in capstone/experiments/. pytest green, ruff clean, mypy clean, verify_reading_list green.
 
 - 2026-05-14  Phase 2.2 (Shor 9-qubit code): notebook
   `phase-02-qec-fundamentals/02-shor-9/shor_nine.ipynb` covering the
@@ -59,8 +60,15 @@ Phase 0 and Phase 1 both complete. Phase 0 (foundations: linear algebra, probabi
 
 | Run ID | Code | Distance | Decoder | Noise model | p_phys | p_log | shots | seed | commit | notes |
 | ------ | ---- | -------- | ------- | ----------- | ------ | ----- | ----- | ---- | ------ | ----- |
+| sweep-2026-06-19-bp-osd-depolarizing | rotated-surface | 5 | bp-osd | depolarizing | 5.000e-03 | 1.935e-03 | 20000 | 42 | 678ee59 | in-process harness, local CPU, per-round p_log |
+| sweep-2026-06-19-bp-osd-depolarizing | rotated-surface | 3 | bp-osd | depolarizing | 5.000e-03 | 5.255e-03 | 20000 | 42 | 678ee59 | in-process harness, local CPU, per-round p_log |
+| sweep-2026-06-19-pymatching-depolarizing | rotated-surface | 7 | pymatching | depolarizing | 5.000e-03 | 1.528e-03 | 20000 | 42 | 678ee59 | in-process harness, local CPU, per-round p_log |
+| sweep-2026-06-19-pymatching-depolarizing | rotated-surface | 5 | pymatching | depolarizing | 5.000e-03 | 3.006e-03 | 20000 | 42 | 678ee59 | in-process harness, local CPU, per-round p_log |
+| sweep-2026-06-19-pymatching-depolarizing | rotated-surface | 3 | pymatching | depolarizing | 5.000e-03 | 5.988e-03 | 20000 | 42 | 678ee59 | in-process harness, local CPU, per-round p_log |
 
 ## Failed approaches & why
+
+- 2026-06-19  sinter.collect is unusable in the locked env (sinter 1.15 + NumPy 2.4): its parallel sampler asserts isinstance(errors, int), but np.count_nonzero returns a NumPy integer under NumPy 2.x, so every worker raises AssertionError. Resolution: bypass sinter.collect and sample in-process (qec_project.decoders.harness) using Stim seeded sampling + PyMatching.decode_batch / ldpc decode_via_files, reusing only sinter stat helpers (fit_binomial, shot_error_rate_to_piece_error_rate). Avoided a disruptive numpy downgrade that could perturb existing notebooks/tests.
 
 - 2026-05-14  In sandboxed environments doi.org/arxiv.org return 403 to
   HEAD requests. `verify_reading_list.py` would otherwise hard-fail on
@@ -69,6 +77,8 @@ Phase 0 and Phase 1 both complete. Phase 0 (foundations: linear algebra, probabi
   fabricated identifiers, not flaky network policy).
 
 ## Known limitations
+
+- 2026-06-19  BP+OSD via ldpc (decode_via_files) is ~58x slower than MWPM at d=3 and ~600x at d=5; a d=7 cell is ~58 ms/shot (~175 s for 3000 shots), so the BP+OSD sweep is capped at d<=5 on local CPU. For d=7 BP+OSD or d>=9 sweeps, burst to more cores / Modal (Phase-4 roadmap). Also: per-round p_L uses rounds=d, so the per-round threshold (~0.012) sits above the per-shot crossing (~0.007); the p-grid must bracket it.
 
 <!--
 Slow-growing list of constraints to remember across sessions. Examples:

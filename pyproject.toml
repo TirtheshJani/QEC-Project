@@ -60,7 +60,10 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra -q"
+addopts = "-ra -q -m 'not slow'"
+markers = [
+    "slow: Monte-Carlo / decoder simulations; deselected by default (run with -m slow).",
+]
 
 [tool.mypy]
 python_version = "3.12"
