@@ -68,6 +68,30 @@ def apply_channel(rho: np.ndarray, kraus: Sequence[np.ndarray]) -> np.ndarray:
     return out
 
 
+def apply_channel_to_qubit(
+    rho: np.ndarray,
+    kraus: Sequence[np.ndarray],
+    target: int,
+    n_qubits: int,
+) -> np.ndarray:
+    """Apply a single-qubit Kraus channel to qubit ``target`` of an n-qubit state.
+
+    Qubit ordering: qubit 0 is the leftmost (most significant) tensor factor,
+    matching ``numpy.kron(a, b)`` where ``a`` acts on qubit 0. The single-qubit
+    Kraus operators are lifted to the full ``2**n_qubits`` Hilbert space via
+    identity padding before being applied through :func:`apply_channel`.
+    """
+    if not 0 <= target < n_qubits:
+        raise ValueError(f"target {target} not in [0, {n_qubits})")
+    dim = 2**n_qubits
+    if rho.shape != (dim, dim):
+        raise ValueError(f"rho shape {rho.shape} does not match {n_qubits} qubits")
+    left = np.eye(2**target, dtype=np.complex128)
+    right = np.eye(2 ** (n_qubits - target - 1), dtype=np.complex128)
+    lifted = [np.kron(np.kron(left, np.asarray(K, dtype=np.complex128)), right) for K in kraus]
+    return apply_channel(rho, lifted)
+
+
 def is_trace_preserving(kraus: Sequence[np.ndarray], atol: float = _KRAUS_TOL) -> bool:
     """Return True iff ``sum_k K_k^dagger K_k == I`` within ``atol``."""
     arrs = [np.asarray(k, dtype=np.complex128) for k in kraus]
