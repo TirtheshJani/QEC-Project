@@ -13,16 +13,18 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE / "threshold_simulation.ipynb"
 
 
-def md(text: str) -> nbf.NotebookNode:
-    return nbf.v4.new_markdown_cell(text)
+def md(cell_id: str, text: str) -> nbf.NotebookNode:
+    # Fixed ids (the committed ones) keep a rebuild from rewriting every cell id.
+    return nbf.v4.new_markdown_cell(text, id=cell_id)
 
 
-def code(text: str) -> nbf.NotebookNode:
-    return nbf.v4.new_code_cell(text)
+def code(cell_id: str, text: str) -> nbf.NotebookNode:
+    return nbf.v4.new_code_cell(text, id=cell_id)
 
 
 cells: list[nbf.NotebookNode] = [
     md(
+        "c9c09a9c",
         """# Phase 3.4 — Threshold simulation & the decoder benchmark
 
 This is where Phase 3 becomes the capstone. We load the production sweeps written by
@@ -36,6 +38,7 @@ Everything here uses the promoted analysis helpers in
 table and `capstone/figures/summary.json` (same seed, same commit)."""
     ),
     code(
+        "51e8d907",
         """from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -60,12 +63,14 @@ points = load_points(pm_csv, bp_csv)
 print(f"loaded {len(points)} points from\\n  {pm_csv.parent.name}\\n  {bp_csv.parent.name}")"""
     ),
     md(
+        "4c58002c",
         """## The threshold crossing (MWPM)
 
 Below threshold, larger distance $\\Rightarrow$ lower logical error; the curves
 fan out. Above threshold the ordering inverts. They cross at $p_\\mathrm{th}$."""
     ),
     code(
+        "6f71018f",
         """def plot_crossing(points, title):
     by_d = {}
     for p in points:
@@ -92,6 +97,7 @@ pm = filter_points(points, decoder="pymatching")
 plot_crossing(pm, "Rotated surface code — MWPM (PyMatching)")"""
     ),
     md(
+        "76fe2c38",
         """## Threshold & suppression for both decoders
 
 `estimate_threshold` finds the curve crossing; `fit_critical` independently fits the
@@ -99,6 +105,7 @@ finite-size form $p_L = A\\,(p/p_\\mathrm{th})^{(d+1)/2}$. They agree to within 
 fit error — a good consistency check. $\\Lambda > 1$ confirms error suppression."""
     ),
     code(
+        "a7c40314",
         """for dec in ("pymatching", "bp-osd"):
     pts = filter_points(points, decoder=dec)
     cross = estimate_threshold(pts)
@@ -108,6 +115,7 @@ fit error — a good consistency check. $\\Lambda > 1$ confirms error suppressio
           f"± {fit.p_th_stderr:.4f} | Λ = {lam}")"""
     ),
     md(
+        "06bbb7cf",
         """## Head to head: accuracy vs time per shot
 
 BP+OSD exploits the full hyperedge structure of the DEM, and on this data it has
@@ -120,6 +128,7 @@ algorithm optimization* objective (real-time signal recovery), that scaling is t
 crux."""
     ),
     code(
+        "76aa33d0",
         """import csv
 from collections import defaultdict
 
@@ -144,6 +153,7 @@ for dec, pts in (("MWPM", pm), ("BP+OSD", filter_points(points, decoder="bp-osd"
     print(f"{dec:>7} d=5 @ p=0.005: p_L = {q.p_log:.2e}")"""
     ),
     md(
+        "a810ba5e",
         """## Result
 
 * **Threshold (uniform depolarizing).** The curves cross near
