@@ -7,6 +7,11 @@ sweep written by `scripts/run_threshold_sweep.py`:
   `decoder,noise,distance,rounds,p_phys,shots,errors,seconds,seed,commit`.
 - `run.json` — provenance manifest (argv, seed, commit SHA, library versions, timestamp).
 
+The committed data is `sweep-2026-06-19-*`. The two `rerun-2026-09-26-*` directories
+hold a rerun of the two commands below at 1218c55 (with `--workers 2` and `--run-id`),
+kept for comparison. The README commands and the Phase 3.4 notebook name the
+`sweep-2026-06-19-*` directories, so they do not pick up the rerun.
+
 Sampling is **in-process** (Stim → PyMatching / ldpc BP+OSD), explicitly seeded per
 cell, and resumable: re-running an identical command tops each cell up to `--shots`.
 (`sinter.collect` is bypassed — it is incompatible with NumPy 2.x in the locked
@@ -16,7 +21,7 @@ Seeding: until 2026-09-26 the per-cell Stim seed mixed in Python's `hash(decoder
 which changes from process to process, so the committed 2026-06-19 `stats.csv` files
 cannot be regenerated bit for bit. The seed now uses a CRC32 of the decoder name, so
 rerunning a command below gives identical counts (Stim guarantees this for the same
-Stim version on machines with the same SIMD width). A fresh rerun agrees with the
+Stim version on machines with the same SIMD width). The committed rerun agrees with the
 committed counts within binomial error. The committed counts do come from this harness:
 with the per-process salts recovered by brute force, it regenerates all 27 MWPM cells
 and the 10 BP+OSD cells at $p \le 0.01$ exactly. Each committed `stats.csv` was

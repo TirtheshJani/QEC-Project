@@ -68,15 +68,19 @@ and 2.72 (2.27 to 3.25) for BP+OSD (the two intervals overlap), and MWPM's
 $\Lambda_{5\to7}$ is 1.97 (1.65 to 2.35).
 The intervals come from a seeded parametric bootstrap on the binomial counts:
 `uv run python scripts/lambda_interval.py capstone/experiments/sweep-2026-06-19-*/stats.csv --p 0.005`.
-The fresh rerun described below gives $\Lambda_{3\to5}$ of 1.97 and 2.70 at this $p$.
+The committed rerun described below gives $\Lambda_{3\to5}$ of 1.97 and 2.70 at this $p$.
 $\Lambda$ at the lowest swept $p = 0.002$ is not reported: those cells hold 5 to 49
 errors, and the same rerun moves $\Lambda_{3\to5}$ there from 5.8 and 6.3 to 4.2 and 10.6.
 
 The committed 2026-06-19 data was sampled with per-process seeds (see
-[`capstone/experiments/README.md`](capstone/experiments/README.md)). A fresh run of the
-documented commands, deterministic since f5a48b3, gives $p_\mathrm{th} = 0.0123 \pm 0.0012$
-(MWPM) and $0.0145 \pm 0.0016$ (BP+OSD), consistent with the table within fit error.
-Every number is seed- and commit-stamped in [`CHANGELOG.md`](CHANGELOG.md).
+[`capstone/experiments/README.md`](capstone/experiments/README.md)). A rerun of the
+documented commands at 1218c55 (seed 42, 2 worker processes; deterministic since f5a48b3)
+is committed as `capstone/experiments/rerun-2026-09-26-*/`. It gives
+$p_\mathrm{th} = 0.0123 \pm 0.0012$ (MWPM) and $0.0145 \pm 0.0016$ (BP+OSD), consistent
+with the table within fit error. The rerun numbers on this page come from passing its
+`stats.csv` files to `scripts/lambda_interval.py`, or to `scripts/make_figures.py` with
+`--out-dir` set so the committed figures are not overwritten. Both sweeps' accuracy rows
+at $p = 0.005$ are seed- and commit-stamped in [`CHANGELOG.md`](CHANGELOG.md).
 
 How the numbers are measured: $p_\mathrm{th}$ is a fit of
 $p_L = A\,(p/p_\mathrm{th})^{(d+1)/2}$ to per-round logical error rates over the whole
@@ -88,8 +92,9 @@ each distance and divided by the number of shots, with cells running in parallel
 processes. BP+OSD is ldpc's `SinterBpOsdDecoder` (min-sum BP with `max_iter=20`, OSD-CS
 of order 7), driven through its file-based sinter interface, which rebuilds the decoder
 for every batch and decodes shot by shot in Python. It is a same-harness comparison,
-not a tuned decoder-only latency benchmark, and it depends on machine load: the fresh
-rerun above measured 7.2 and 5236 µs per shot at $d=5$.
+not a tuned decoder-only latency benchmark, and it depends on machine load: the committed
+rerun measured 1.0 and 118 µs per shot (MWPM and BP+OSD) at $d=3$ and 7.0 and 5048 µs at
+$d=5$.
 
 ## Quickstart
 
