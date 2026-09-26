@@ -10,6 +10,7 @@ from hypothesis import strategies as st
 from qec_project.linalg import PAULI_X, PAULI_Y
 from qec_project.noise.quantum import (
     apply_channel,
+    apply_channel_to_qubit,
     bit_flip_channel,
     bit_flip_kraus,
     depolarizing_channel,
@@ -130,6 +131,19 @@ def test_is_trace_preserving_rejects_empty() -> None:
 def test_is_trace_preserving_rejects_non_kraus() -> None:
     bogus = [PAULI_X, PAULI_Y]  # X^T X + Y^T Y = 2 I, not I.
     assert not is_trace_preserving(bogus)
+
+
+def test_apply_channel_to_qubit_only_touches_target() -> None:
+    # |0><0| on qubit 0 tensored with |1><1| on qubit 1; fully depolarize qubit 0.
+    rho = np.kron(RHO_0, RHO_1)
+    out = apply_channel_to_qubit(rho, depolarizing_kraus(1.0), target=0, n_qubits=2)
+    np.testing.assert_allclose(out, np.kron(RHO_MIXED, RHO_1), atol=ATOL)
+
+
+def test_apply_channel_to_qubit_rejects_out_of_range() -> None:
+    rho = np.eye(4, dtype=np.complex128) / 4
+    with pytest.raises(ValueError):
+        apply_channel_to_qubit(rho, depolarizing_kraus(0.1), target=2, n_qubits=2)
 
 
 def _random_density(rng: np.random.Generator, dim: int = 2) -> np.ndarray:
