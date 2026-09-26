@@ -48,3 +48,6 @@ Thumbs.db
 .modal/
 .env
 .env.local
+
+# Claude Code per-user settings
+.claude/settings.local.json
