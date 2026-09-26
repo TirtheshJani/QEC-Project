@@ -44,10 +44,11 @@ uv run python scripts/run_threshold_sweep.py \
     --p-phys 0.002 0.003 0.005 0.007 0.01 0.013 0.016 0.02 0.025 \
     --shots 20000 --max-errors 2000 --seed 42 --changelog
 
-# Figures + summary.json (estimated threshold, fit p_th, Λ ratios). The glob reads
-# every sweep directory present, so after a rerun pass the stats.csv files explicitly.
+# Figures + summary.json (estimated threshold, fit p_th, Λ ratios) from the committed
+# sweeps. To plot a rerun, pass its stats.csv files instead; make_figures.py warns if
+# two inputs contain the same (decoder, distance, p) cell.
 uv run python scripts/make_figures.py \
-    capstone/experiments/*/stats.csv --noise depolarizing
+    capstone/experiments/sweep-2026-06-19-*/stats.csv --noise depolarizing
 ```
 
 Figures land in `capstone/figures/`; headline numbers in `capstone/figures/summary.json`

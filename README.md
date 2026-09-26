@@ -103,7 +103,7 @@ uv run ruff check .
 uv run python scripts/verify_reading_list.py
 
 # 3. Regenerate the capstone figures + summary.json from the committed sweep data
-uv run python scripts/make_figures.py capstone/experiments/*/stats.csv --noise depolarizing
+uv run python scripts/make_figures.py capstone/experiments/sweep-2026-06-19-*/stats.csv --noise depolarizing
 
 # 4. Start
 uv run jupyter lab phase-00-foundations/
