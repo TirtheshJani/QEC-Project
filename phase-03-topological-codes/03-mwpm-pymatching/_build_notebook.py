@@ -62,13 +62,19 @@ compare. The logical error rate is the fraction of shots where the prediction
 disagrees with the truth."""
     ),
     code(
-        """rng_seed = 42
+        """import time
+
+rng_seed = 42
 det, obs = circuit.compile_detector_sampler(seed=rng_seed).sample(
     50_000, separate_observables=True)
+t0 = time.perf_counter()
 pred = decode_shots(matching, det)
+decode_s = time.perf_counter() - t0
 errors = int(np.count_nonzero(np.any(pred != obs, axis=1)))
 print(f"shots = {det.shape[0]:,}, logical errors = {errors}, "
       f"p_L (per shot) = {errors / det.shape[0]:.4f}")
+print(f"decode only: {1e6 * decode_s / det.shape[0]:.2f} us/shot "
+      f"({det.shape[0] / decode_s:,.0f} shots/s, one core)")
 
 # A 'do nothing' decoder (predict no flip) is the baseline MWPM must beat:
 trivial = int(np.count_nonzero(np.any(obs != 0, axis=1)))
@@ -104,8 +110,10 @@ plt.show()"""
     md(
         """## Recap
 
-* PyMatching turns a Stim DEM into an MWPM decoder in one call; `decode_batch`
-  decodes millions of shots per second.
+* PyMatching turns a Stim DEM into an MWPM decoder in one call. `decode_batch`
+  decoded the $d=5$, $p=0.005$ shots above in about 3 µs each (the rate printed
+  above, a few hundred thousand shots per second on one core). The time per shot
+  grows with $d$: each shot holds $d$ rounds of a $d \\times d$ patch.
 * MWPM beats the trivial decoder by a wide margin below threshold.
 * The $d=3$ vs $d=5$ curves already separate sub-threshold — the full crossing and
   threshold estimate are produced in Phase 3.4 / the capstone sweep."""
