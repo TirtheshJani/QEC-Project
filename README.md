@@ -50,7 +50,8 @@ seeded Monte-Carlo harness.
 | BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 6.3× | ~5400 µs/shot (~600× slower) |
 
 At $p=0.002$ each $+2$ in code distance suppresses the logical error rate ~4–6×
-(at $p=0.005$ it is ~2–3×); the $d=3,5,7$ curves cross at $p_\mathrm{th}$. BP+OSD is
+(those cells hold only 5 to 49 logical errors, so $\Lambda$ there is uncertain; at
+$p=0.005$ it is ~2–3×); the $d=3,5,7$ curves cross at $p_\mathrm{th}$. BP+OSD is
 the more accurate decoder at $d=5$ (lower $p_L$ than MWPM at all nine swept $p$, ~35%
 lower at $p=0.005$), though its fitted threshold is within the fit uncertainty of
 MWPM's, and it pays a steep, distance-scaling latency cost — exactly the accuracy vs
