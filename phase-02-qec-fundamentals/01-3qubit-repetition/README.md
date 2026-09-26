@@ -18,7 +18,9 @@ loop are the universal template you will reuse for Shor 9 (Phase 2.2), Steane
    ancilla circuit in Qiskit.
 4. Apply the maximum-likelihood single-qubit X recovery.
 5. Sweep physical error rate p, plot logical error rate vs p alongside
-   the uncoded baseline, show the crossover where coding starts to hurt.
+   the uncoded baseline and the exact curves, and show that under
+   depolarizing noise the code is worse than an uncoded qubit at every
+   0 < p < 1: it corrects X errors but triples the exposure to Z errors.
 
 ## Deliverables
 
@@ -27,7 +29,7 @@ loop are the universal template you will reuse for Shor 9 (Phase 2.2), Steane
   (reused by Phase 2.2 Shor 9).
 - `src/qec_project/noise/quantum.py` - Pauli matrices and Kraus channels
   (reused throughout Phase 2).
-- `tests/test_noise_quantum.py`, `tests/test_repetition3.py`.
+- `tests/test_quantum_noise.py`, `tests/test_repetition3.py`.
 
 ## What this code does NOT correct
 
