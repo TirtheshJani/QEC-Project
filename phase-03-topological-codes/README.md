@@ -37,7 +37,7 @@ curriculum builds tooling around it.
 
 ## Result (uniform depolarizing noise, seed 42)
 
-| Decoder | $p_\\mathrm{th}$ (fit) | $\\Lambda_{3\\to5}$ | latency @ d=5 |
+| Decoder | $p_\\mathrm{th}$ (fit, per round) | $\\Lambda_{3\\to5}$ at $p=0.002$ | latency @ d=5 |
 | --- | --- | --- | --- |
 | MWPM (PyMatching) | $0.0122 \\pm 0.0013$ | 5.8 | ~9 µs/shot |
 | BP+OSD (ldpc) | $0.0134 \\pm 0.0015$ | 6.3 | ~5400 µs/shot (~600× slower) |
@@ -45,7 +45,8 @@ curriculum builds tooling around it.
 Figures in `capstone/figures/`; reproduce via `capstone/experiments/README.md`.
 The decoders were driven **in-process** (not `sinter.collect`, which is incompatible
 with NumPy 2.x here — see `CHANGELOG.md`). The threshold is specific to the
-uniform-depolarizing model, not a published circuit-level number.
+uniform-depolarizing model, not a published circuit-level number. See the top-level
+`README.md` for what the latency column measures and how uncertain $\Lambda$ is here.
 
 ## Workflow hints
 
