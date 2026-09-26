@@ -31,7 +31,7 @@ This is where Phase 3 becomes the capstone. We load the production sweeps writte
 `scripts/run_threshold_sweep.py` (in `capstone/experiments/`), reproduce the
 **threshold-crossing plot**, extract the threshold $p_\\mathrm{th}$ and the
 sub-threshold suppression factor $\\Lambda = p_L(d)/p_L(d+2)$, and put **MWPM vs
-BP+OSD** head to head on accuracy *and* latency.
+BP+OSD** head to head on accuracy *and* time per shot (Stim sampling plus decoding).
 
 Everything here uses the promoted analysis helpers in
 :mod:`qec_project.analysis.threshold`; the numbers match `CHANGELOG.md`'s accuracy

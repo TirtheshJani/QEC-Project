@@ -2,7 +2,7 @@
 
 **Goal.** Turn Phase 3 into the capstone: load the production sweeps, reproduce the
 threshold-crossing plot, extract $p_\mathrm{th}$ and $\Lambda$, and put **MWPM vs
-BP+OSD** head to head on accuracy *and* latency.
+BP+OSD** head to head on accuracy *and* time per shot (Stim sampling plus decoding).
 
 **Notebook.** [`threshold_simulation.ipynb`](threshold_simulation.ipynb) — built from
 `_build_notebook.py`; uses `qec_project.analysis.threshold` and the CSVs in
@@ -20,8 +20,9 @@ The fitted thresholds overlap within fit error. BP+OSD's measured edge is lower 
 at $d=5$: 11 to 35% lower per shot for $p = 0.003$ to $0.01$ (35% at $p = 0.005$;
 two-proportion $z > 2$ only for $p = 0.005$ to $0.02$, on unpaired samples), and it
 takes about 600× as long per shot at $d=5$ (587× in the committed sweep, 719× in the
-committed rerun): the accuracy/latency frontier the capstone studies. See the top-level `README.md` for
-$\Lambda$ with intervals and what the timing measures.
+committed rerun): the trade-off between accuracy and time per shot that the capstone
+studies. See the top-level `README.md` for $\Lambda$ with intervals and what the timing
+measures.
 
 **Run.**
 ```bash
