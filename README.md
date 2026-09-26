@@ -113,6 +113,8 @@ uv run jupyter lab phase-00-foundations/
 `uv run pytest -m slow` runs the Monte-Carlo physics tests, which are deselected by
 default. Step 3 rewrites `capstone/figures/` with files byte-identical to the committed
 ones, so `git status` stays clean.
+The Phase 0, Phase 1 and Phase 2.2 notebooks are stored without outputs, so run them
+locally to see results; the Phase 2.1 and Phase 3 notebooks are stored executed.
 
 Optional, only for working on the repo with Claude Code (not needed to run anything
 above): `bash scripts/install_plugins.sh` installs the three plugins described below.
