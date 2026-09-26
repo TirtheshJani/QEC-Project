@@ -48,3 +48,43 @@ def test_lambda_interval_brackets_point_estimate(tmp_path, capsys):
     p5 = point_from_counts(decoder="x", distance=5, p_phys=0.005, rounds=5, shots=20000, errors=200)
     assert lam == pytest.approx(p3.p_log / p5.p_log, abs=0.005)
     assert lo < lam < hi
+
+
+def test_lambda_ratio_between_decoders_is_reported_post_hoc(tmp_path, capsys):
+    csv = tmp_path / "stats.csv"
+    csv.write_text(
+        "decoder,noise,distance,rounds,p_phys,shots,errors,seconds,seed,commit\n"
+        "aaa,depolarizing,3,3,0.005,20000,400,0.1,42,abc1234\n"
+        "aaa,depolarizing,5,5,0.005,20000,100,0.2,42,abc1234\n"
+        "bbb,depolarizing,3,3,0.005,20000,400,0.1,42,abc1234\n"
+        "bbb,depolarizing,5,5,0.005,20000,300,0.2,42,abc1234\n"
+    )
+    assert _load_script().main([str(csv), "--p", "0.005", "--reps", "2000"]) == 0
+    out = capsys.readouterr().out
+    m = re.search(
+        r"post-hoc Λ\(3->5\) aaa / bbb at p=0.005: ([\d.]+), 95% interval "
+        r"\[([\d.]+), ([\d.]+)\], fraction of replicates <= 1: ([\d.]+)",
+        out,
+    )
+    assert m is not None, out
+    rel, lo, hi, frac = (float(g) for g in m.groups())
+
+    def lam(e3: int, e5: int) -> float:
+        p3 = point_from_counts(decoder="x", distance=3, p_phys=0.005, rounds=3, shots=20000, errors=e3)
+        p5 = point_from_counts(decoder="x", distance=5, p_phys=0.005, rounds=5, shots=20000, errors=e5)
+        return p3.p_log / p5.p_log
+
+    assert rel == pytest.approx(lam(400, 100) / lam(400, 300), abs=0.005)
+    assert lo < rel < hi
+    assert frac < 0.01  # Λ_aaa is about 3x Λ_bbb, far outside the bootstrap spread
+
+
+def test_no_lambda_ratio_for_a_single_decoder(tmp_path, capsys):
+    csv = tmp_path / "stats.csv"
+    csv.write_text(
+        "decoder,noise,distance,rounds,p_phys,shots,errors,seconds,seed,commit\n"
+        "aaa,depolarizing,3,3,0.005,20000,400,0.1,42,abc1234\n"
+        "aaa,depolarizing,5,5,0.005,20000,100,0.2,42,abc1234\n"
+    )
+    assert _load_script().main([str(csv), "--p", "0.005", "--reps", "2000"]) == 0
+    assert "post-hoc" not in capsys.readouterr().out

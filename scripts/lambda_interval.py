@@ -5,6 +5,11 @@ logical error rate of each (decoder, distance) cell at ``--p``, and gives a perc
 interval for Λ from a seeded parametric bootstrap: each cell's error count is redrawn
 from Binomial(shots, errors / shots) and Λ is recomputed.
 
+When the CSVs hold two or more decoders, it also prints a post-hoc comparison (added on
+2026-09-26, after the data was seen): the ratio of their Λ at the same distances, with
+an interval from the same bootstrap replicates. The decoders' shots are sampled
+independently, so their replicates are independent too.
+
 Usage:
     python scripts/lambda_interval.py capstone/experiments/sweep-2026-06-19-*/stats.csv --p 0.005
 """
@@ -12,6 +17,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import itertools
 
 import numpy as np
 
@@ -47,6 +53,8 @@ def main(argv: list[str] | None = None) -> int:
         if abs(q.p_phys - args.p) < 1e-12
     ]
     tail = (1.0 - args.level) / 2.0
+    lam_draws: dict[tuple[str, int], np.ndarray] = {}
+    lam_point: dict[tuple[str, int], float] = {}
     for decoder in sorted({q.decoder for q in points}):
         cells = {q.distance: q for q in points if q.decoder == decoder}
         for d in sorted(cells):
@@ -59,10 +67,27 @@ def main(argv: list[str] | None = None) -> int:
             with np.errstate(divide="ignore"):  # a draw with 0 errors at d+2 gives inf
                 ratio = _draws(lo, args.reps, rng) / _draws(hi, args.reps, rng)
             q_lo, q_hi = np.quantile(ratio, [tail, 1.0 - tail])
+            lam_draws[(decoder, d)] = ratio
+            lam_point[(decoder, d)] = lo.p_log / hi.p_log
             print(
                 f"{decoder:>11} Λ({d}->{d + 2}) at p={args.p}: {lo.p_log / hi.p_log:.2f}, "
                 f"{args.level:.0%} interval [{q_lo:.2f}, {q_hi:.2f}] "
                 f"(errors {lo.errors}/{lo.shots} at d={d}, {hi.errors}/{hi.shots} at d={d + 2})"
+            )
+
+    # Post-hoc: Λ of one decoder over another's, reusing the replicates drawn above (no
+    # extra random draws, so the per-decoder intervals are unchanged by this block).
+    for a, b in itertools.combinations(sorted({dec for dec, _ in lam_draws}), 2):
+        shared = {k for dec, k in lam_draws if dec == a} & {k for dec, k in lam_draws if dec == b}
+        for d in sorted(shared):
+            with np.errstate(divide="ignore", invalid="ignore"):
+                rel = lam_draws[(a, d)] / lam_draws[(b, d)]
+            q_lo, q_hi = np.quantile(rel, [tail, 1.0 - tail])
+            print(
+                f"   post-hoc Λ({d}->{d + 2}) {a} / {b} at p={args.p}: "
+                f"{lam_point[(a, d)] / lam_point[(b, d)]:.2f}, "
+                f"{args.level:.0%} interval [{q_lo:.2f}, {q_hi:.2f}], "
+                f"fraction of replicates <= 1: {np.mean(rel <= 1.0):.3f}"
             )
     return 0
 
