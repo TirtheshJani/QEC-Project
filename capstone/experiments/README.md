@@ -19,8 +19,11 @@ rerunning a command below gives identical counts (Stim guarantees this for the s
 Stim version on machines with the same SIMD width). A fresh rerun agrees with the
 committed counts within binomial error. The committed counts do come from this harness:
 with the per-process salts recovered by brute force, it regenerates all 27 MWPM cells
-and the 10 BP+OSD cells at $p \le 0.01$ exactly. See the 2026-09-26 entries in
-`CHANGELOG.md`.
+and the 10 BP+OSD cells at $p \le 0.01$ exactly. Each committed `stats.csv` was
+written by two invocations (the $p \le 0.01$ grid, then $p \ge 0.013$) from the
+uncommitted tree that became 725c700, but its `run.json` records only the last
+invocation: one full-grid command stamped 678ee59, a commit that has no harness yet.
+See the 2026-09-26 entries in `CHANGELOG.md`.
 
 ## Reproduce
 
