@@ -22,9 +22,9 @@ papers.
 
 ## Deliverables
 
-- [ ] `01-3qubit-repetition/`: bit-flip code simulation under depolarizing
+- [x] `01-3qubit-repetition/`: bit-flip code simulation under depolarizing
       noise; logical-error vs physical-error plot.
-- [ ] `02-shor-9/`: build it in Qiskit; verify it corrects any single-qubit
+- [x] `02-shor-9/`: build it in Qiskit; verify it corrects any single-qubit
       error.
 - [ ] `03-stabilizer-formalism/`: implement Pauli-group multiplication and
       commutation checking in `src/qec_project/codes/pauli.py` (with tests).
