@@ -100,6 +100,7 @@ uv sync --extra dev
 # 2. Sanity check (the same steps CI runs)
 uv run pytest -q
 uv run ruff check .
+uv run mypy src/qec_project
 uv run python scripts/verify_reading_list.py
 
 # 3. Regenerate the capstone figures + summary.json from the committed sweep data
