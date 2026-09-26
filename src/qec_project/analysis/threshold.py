@@ -31,13 +31,21 @@ from collections import defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import sinter
 
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
 logger = logging.getLogger(__name__)
 
 _MAX_LIKELIHOOD_FACTOR = 1000
+# Fixed salt for matplotlib's generated SVG element ids; with the date dropped
+# from the metadata, re-running make_figures.py on the same data gives
+# byte-identical SVGs instead of a diff on every run.
+_SVG_HASHSALT = "qec-project"
 
 
 @dataclass(frozen=True)
@@ -255,6 +263,14 @@ def _yerr(group: Sequence[LogicalErrorPoint]) -> np.ndarray | None:
     return np.array([lo, hi])
 
 
+def _save_svg(fig: Figure, path: Path) -> None:
+    """Save ``fig`` as an SVG that is byte-identical across runs."""
+    import matplotlib
+
+    with matplotlib.rc_context({"svg.hashsalt": _SVG_HASHSALT}):
+        fig.savefig(path, metadata={"Date": None})
+
+
 def plot_threshold_crossing(
     points: Sequence[LogicalErrorPoint], *, out_path: str | Path, title: str | None = None
 ) -> Path:
@@ -283,7 +299,7 @@ def plot_threshold_crossing(
     fig.tight_layout()
     out = Path(out_path)
     fig.savefig(out, dpi=200)
-    fig.savefig(out.with_suffix(".svg"))
+    _save_svg(fig, out.with_suffix(".svg"))
     plt.close(fig)
     return out
 
@@ -324,6 +340,6 @@ def plot_decoder_comparison(
     fig.tight_layout()
     out = Path(out_path)
     fig.savefig(out, dpi=200)
-    fig.savefig(out.with_suffix(".svg"))
+    _save_svg(fig, out.with_suffix(".svg"))
     plt.close(fig)
     return out

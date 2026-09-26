@@ -86,9 +86,8 @@ uv run jupyter lab phase-00-foundations/
 ```
 
 `uv run pytest -m slow` runs the Monte-Carlo physics tests, which are deselected by
-default. Step 3 rewrites `capstone/figures/`; the PNGs and `summary.json` come out
-byte-identical to the committed ones (the SVGs differ only in their embedded timestamp
-and generated element ids).
+default. Step 3 rewrites `capstone/figures/` with files byte-identical to the committed
+ones, so `git status` stays clean.
 
 Optional, only for working on the repo with Claude Code (not needed to run anything
 above): `bash scripts/install_plugins.sh` installs the three plugins described below.

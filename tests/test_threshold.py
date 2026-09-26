@@ -13,6 +13,8 @@ from qec_project.analysis.threshold import (
     fit_critical,
     lambda_ratios,
     load_points,
+    plot_decoder_comparison,
+    plot_threshold_crossing,
     point_from_counts,
 )
 
@@ -93,3 +95,15 @@ def test_duplicate_cells_empty_for_disjoint_csvs(tmp_path):
     a.write_text(_HEADER + "pymatching,depolarizing,3,3,0.005,10000,120,0.1,42,abc1234\n")
     b.write_text(_HEADER + "bp-osd,depolarizing,3,3,0.005,10000,90,5.0,42,abc1234\n")
     assert duplicate_cells(a, b) == {}
+
+
+@pytest.mark.parametrize("which", ["crossing", "comparison"])
+def test_svg_output_is_byte_identical_across_saves(tmp_path, which):
+    pts = _synthetic(p_th=0.005, ps=(0.002, 0.004, 0.006, 0.008))
+    for name in ("a", "b"):
+        out = tmp_path / f"{name}.png"
+        if which == "crossing":
+            plot_threshold_crossing(pts, out_path=out)
+        else:
+            plot_decoder_comparison({"x": pts}, distance=5, out_path=out)
+    assert (tmp_path / "a.svg").read_bytes() == (tmp_path / "b.svg").read_bytes()
