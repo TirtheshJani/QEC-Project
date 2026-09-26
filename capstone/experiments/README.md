@@ -17,7 +17,10 @@ which changes from process to process, so the committed 2026-06-19 `stats.csv` f
 cannot be regenerated bit for bit. The seed now uses a CRC32 of the decoder name, so
 rerunning a command below gives identical counts (Stim guarantees this for the same
 Stim version on machines with the same SIMD width). A fresh rerun agrees with the
-committed counts within binomial error; see the 2026-09-26 entries in `CHANGELOG.md`.
+committed counts within binomial error. The committed counts do come from this harness:
+with the per-process salts recovered by brute force, it regenerates all 27 MWPM cells
+and the 10 BP+OSD cells at $p \le 0.01$ exactly. See the 2026-09-26 entries in
+`CHANGELOG.md`.
 
 ## Reproduce
 
