@@ -1,5 +1,15 @@
 # Capstone — Decoder benchmark study for the rotated surface code
 
+**Status (2026-09-26).** What exists now is the first slice of the matrix below: the
+rotated surface code under uniform circuit-level depolarizing noise, decoded with MWPM
+(PyMatching) at $d = 3, 5, 7$ and BP+OSD (ldpc) at $d = 3, 5$, over nine physical error
+rates from 0.002 to 0.025, with up to 20,000 shots per cell (a cell stops early once it
+passes 2,000 logical errors). Sweep data and provenance are in [`experiments/`](experiments/), figures
+and `summary.json` in [`figures/`](figures/), and the headline numbers with their caveats
+in the top-level [`README.md`](../README.md). The rest of this page (SI1000 and biased
+noise, Union-Find and neural decoders, $d = 9$, $10^6$ shots per cell, a latency
+benchmark) is the plan.
+
 **Duration:** ~6–8 weeks. **Prereq:** Phases 0–5 complete.
 
 This is the artifact you bring to an NRC EOI conversation. It is one focused,
