@@ -1,5 +1,7 @@
 # QEC-Project
 
+[![ci](https://github.com/TirtheshJani/QEC-Project/actions/workflows/ci.yml/badge.svg)](https://github.com/TirtheshJani/QEC-Project/actions/workflows/ci.yml)
+
 Self-study quantum error correction (QEC) curriculum + decoder-focused
 capstone, structured to ground an Expression of Interest to the National
 Research Council of Canada's
@@ -28,8 +30,10 @@ targeting NRC's *Decoding algorithm optimization* objective. Budget:
 | [Phase 5](phase-05-advanced-decoders/) | BP+OSD, Union-Find, neural decoders, qLDPC | ~4 wks |
 | [Capstone](capstone/) | Decoder benchmark study + arXiv preprint + mock EOI | ~6–8 wks |
 
-**Status:** Phases 0–3 complete (foundations → a runnable surface-code decoder
-benchmark); Phases 4–5 + the written EOI are the roadmap.
+**Status:** Phases 0, 1 and 3 complete (foundations → a runnable surface-code decoder
+benchmark). Phase 2 is partly done: 2.1 (3-qubit repetition code) and 2.2 (Shor 9)
+are in; 2.3 to 2.5 (stabilizer formalism, Steane, intro to Stim) are not started.
+Phases 4–5 + the written EOI are the roadmap.
 
 ## Results so far — the capstone decoder benchmark
 
@@ -40,36 +44,53 @@ seeded Monte-Carlo harness.
 
 ![Surface-code threshold crossing under MWPM](capstone/figures/threshold_depolarizing_pymatching.png)
 
-| Decoder | threshold $p_\mathrm{th}$ | suppression $\Lambda_{3\to5}$ | decode latency @ d=5 |
+| Decoder | threshold $p_\mathrm{th}$ (per round) | suppression $\Lambda_{3\to5}$ at $p=0.002$ | decode latency @ d=5 |
 | --- | --- | --- | --- |
 | MWPM (PyMatching) | $0.0122 \pm 0.0013$ | 5.8× | ~9 µs/shot |
 | BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 6.3× | ~5400 µs/shot (~600× slower) |
 
-Below threshold each $+2$ in code distance suppresses the logical error rate ~4–6×;
-the $d=3,5,7$ curves cross at $p_\mathrm{th}$. BP+OSD is the more accurate decoder
-(higher threshold, ~35% lower $p_L$ at $d=5$) but pays a steep, distance-scaling
-latency cost — exactly the accuracy vs real-time-feasibility frontier the capstone
-targets (NRC *Decoding algorithm optimization*). Every number is seed- and
-commit-stamped in [`CHANGELOG.md`](CHANGELOG.md); reproduce via
+At $p=0.002$ each $+2$ in code distance suppresses the logical error rate ~4–6×
+(at $p=0.005$ it is ~2–3×); the $d=3,5,7$ curves cross at $p_\mathrm{th}$. BP+OSD is
+the more accurate decoder at $d=5$ (lower $p_L$ than MWPM at all nine swept $p$, ~35%
+lower at $p=0.005$), though its fitted threshold is within the fit uncertainty of
+MWPM's, and it pays a steep, distance-scaling latency cost — exactly the accuracy vs
+real-time-feasibility frontier the capstone targets (NRC *Decoding algorithm
+optimization*). Every number is seed- and commit-stamped in
+[`CHANGELOG.md`](CHANGELOG.md); reproduce via
 [`capstone/experiments/README.md`](capstone/experiments/README.md).
+
+How the numbers are measured: $p_\mathrm{th}$ is a fit of
+$p_L = A\,(p/p_\mathrm{th})^{(d+1)/2}$ to per-round logical error rates over the whole
+$p$ grid (the per-shot curves cross lower, near $p = 0.007$). Latency is wall-clock
+time per shot for Stim sampling plus decoding, summed over the $p$ grid at $d=5$, with
+cells running in parallel worker processes; BP+OSD runs through ldpc's file-based
+sinter interface. It is a same-harness comparison, not a tuned decoder-only benchmark.
 
 ## Quickstart
 
 ```bash
-# 1. Install Python deps via uv (https://docs.astral.sh/uv/)
+# 1. Install Python deps via uv (https://docs.astral.sh/uv/); Python 3.12
 uv sync --extra dev
 
-# 2. Install the three Claude Code plugins this project uses
-bash scripts/install_plugins.sh
-
-# 3. Sanity check
+# 2. Sanity check (the same steps CI runs)
 uv run pytest -q
 uv run ruff check .
 uv run python scripts/verify_reading_list.py
 
+# 3. Regenerate the capstone figures + summary.json from the committed sweep data
+uv run python scripts/make_figures.py capstone/experiments/*/stats.csv --noise depolarizing
+
 # 4. Start
 uv run jupyter lab phase-00-foundations/
 ```
+
+`uv run pytest -m slow` runs the Monte-Carlo physics tests, which are deselected by
+default. Step 3 rewrites `capstone/figures/`; the PNGs and `summary.json` come out
+byte-identical to the committed ones (the SVGs differ only in their embedded timestamp
+and generated element ids).
+
+Optional, only for working on the repo with Claude Code (not needed to run anything
+above): `bash scripts/install_plugins.sh` installs the three plugins described below.
 
 ## How this repo is governed
 
