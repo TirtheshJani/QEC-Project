@@ -12,8 +12,8 @@ Reads one or more ``stats.csv`` files produced by
   one is taken at, ``lambda_p_phys``) per decoder, so the README / EOI can cite
   exact values without re-deriving them.
 
-Usage:
-    python scripts/make_figures.py capstone/experiments/*/stats.csv --noise depolarizing
+Usage (the committed sweeps; pass one stats.csv per decoder):
+    python scripts/make_figures.py capstone/experiments/sweep-2026-06-19-*/stats.csv --noise depolarizing
 """
 
 from __future__ import annotations
