@@ -64,11 +64,14 @@ and 587× at $d=5$: the accuracy vs real-time-feasibility frontier the capstone 
 
 Sub-threshold suppression at $p = 0.005$, where each cell holds 192 to 355 logical
 errors: $\Lambda_{3\to5} = p_L(3)/p_L(5)$ is 1.99 (95% interval 1.71 to 2.33) for MWPM
-and 2.72 (2.27 to 3.25) for BP+OSD (the two intervals overlap), and MWPM's
-$\Lambda_{5\to7}$ is 1.97 (1.65 to 2.35).
+and 2.72 (2.27 to 3.25) for BP+OSD, and MWPM's $\Lambda_{5\to7}$ is 1.97 (1.65 to 2.35).
+Compared directly, in a post-hoc comparison added after the data was seen, BP+OSD's
+$\Lambda_{3\to5}$ at this $p$ is 1.36 times MWPM's (95% interval 1.08 to 1.73; 0.5% of
+bootstrap replicates are at or below 1).
 The intervals come from a seeded parametric bootstrap on the binomial counts:
 `uv run python scripts/lambda_interval.py capstone/experiments/sweep-2026-06-19-*/stats.csv --p 0.005`.
-The committed rerun described below gives $\Lambda_{3\to5}$ of 1.97 and 2.70 at this $p$.
+The committed rerun described below gives $\Lambda_{3\to5}$ of 1.97 and 2.70 at this $p$,
+and a ratio of 1.37 (1.08 to 1.74).
 $\Lambda$ at the lowest swept $p = 0.002$ is not reported: those cells hold 5 to 49
 errors, and the same rerun moves $\Lambda_{3\to5}$ there from 5.8 and 6.3 to 4.2 and 10.6.
 
