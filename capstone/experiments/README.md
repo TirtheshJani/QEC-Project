@@ -12,10 +12,20 @@ cell, and resumable: re-running an identical command tops each cell up to `--sho
 (`sinter.collect` is bypassed — it is incompatible with NumPy 2.x in the locked
 environment; see `CHANGELOG.md` → "Failed approaches".)
 
+Seeding: until 2026-09-26 the per-cell Stim seed mixed in Python's `hash(decoder)`,
+which changes from process to process, so the committed 2026-06-19 `stats.csv` files
+cannot be regenerated bit for bit. The seed now uses a CRC32 of the decoder name, so
+rerunning a command below gives identical counts (Stim guarantees this for the same
+Stim version on machines with the same SIMD width). A fresh rerun agrees with the
+committed counts within binomial error; see the 2026-09-26 entries in `CHANGELOG.md`.
+
 ## Reproduce
 
 ```bash
 uv sync --extra dev
+
+# Each run writes capstone/experiments/sweep-<today>-<decoder>-<noise>/. --changelog
+# appends accuracy rows to CHANGELOG.md; drop it when you are only checking.
 
 # MWPM (PyMatching) — fast; full distance set
 uv run python scripts/run_threshold_sweep.py \
@@ -31,7 +41,8 @@ uv run python scripts/run_threshold_sweep.py \
     --p-phys 0.002 0.003 0.005 0.007 0.01 0.013 0.016 0.02 0.025 \
     --shots 20000 --max-errors 2000 --seed 42 --changelog
 
-# Figures + summary.json (estimated threshold, fit p_th, Λ ratios)
+# Figures + summary.json (estimated threshold, fit p_th, Λ ratios). The glob reads
+# every sweep directory present, so after a rerun pass the stats.csv files explicitly.
 uv run python scripts/make_figures.py \
     capstone/experiments/*/stats.csv --noise depolarizing
 ```
