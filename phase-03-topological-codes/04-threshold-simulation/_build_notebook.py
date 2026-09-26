@@ -52,8 +52,10 @@ repo = Path.cwd()
 while not (repo / "capstone").exists() and repo.parent != repo:
     repo = repo.parent
 exp = repo / "capstone" / "experiments"
-pm_csv = sorted(exp.glob("*pymatching*depolarizing*/stats.csv"))[-1]
-bp_csv = sorted(exp.glob("*bp-osd*depolarizing*/stats.csv"))[-1]
+# The committed sweeps behind the README numbers. A rerun writes new sweep-<date>-*
+# directories next to them; point these two paths there to analyse it instead.
+pm_csv = exp / "sweep-2026-06-19-pymatching-depolarizing" / "stats.csv"
+bp_csv = exp / "sweep-2026-06-19-bp-osd-depolarizing" / "stats.csv"
 points = load_points(pm_csv, bp_csv)
 print(f"loaded {len(points)} points from\\n  {pm_csv.parent.name}\\n  {bp_csv.parent.name}")"""
     ),
