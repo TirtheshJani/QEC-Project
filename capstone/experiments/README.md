@@ -60,7 +60,10 @@ uv run python scripts/make_figures.py \
 ```
 
 Figures land in `capstone/figures/`; headline numbers in `capstone/figures/summary.json`
-and `CHANGELOG.md`'s accuracy table.
+and `CHANGELOG.md`'s accuracy table. The `lambda` in `summary.json` is taken at the
+lowest $p$ both distances share, which is the lowest swept $p$ (0.002) here, and
+`lambda_p_phys` records it. Those cells hold few logical errors (5 to 49). The $\Lambda$
+values in the top-level README come from `scripts/lambda_interval.py` at $p = 0.005$.
 
 ## Noise model
 

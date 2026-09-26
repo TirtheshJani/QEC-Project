@@ -72,7 +72,8 @@ The intervals come from a seeded parametric bootstrap on the binomial counts:
 `uv run python scripts/lambda_interval.py capstone/experiments/sweep-2026-06-19-*/stats.csv --p 0.005`.
 The committed rerun described below gives $\Lambda_{3\to5}$ of 1.97 and 2.70 at this $p$,
 and a ratio of 1.37 (1.08 to 1.74).
-$\Lambda$ at the lowest swept $p = 0.002$ is not reported: those cells hold 5 to 49
+$\Lambda$ at the lowest swept $p = 0.002$ (the value in `capstone/figures/summary.json`,
+whose `lambda_p_phys` field records that $p$) is not quoted here: those cells hold 5 to 49
 errors, and the same rerun moves $\Lambda_{3\to5}$ there from 5.8 and 6.3 to 4.2 and 10.6.
 
 The committed 2026-06-19 data was sampled with per-process seeds (see
