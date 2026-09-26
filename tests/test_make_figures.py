@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
 _SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "make_figures.py"
@@ -44,3 +45,13 @@ def test_make_figures_silent_without_duplicates(tmp_path, capsys):
     rc = _load_script().main([str(csv), "--out-dir", str(tmp_path / "figs")])
     assert rc == 0
     assert "WARNING" not in capsys.readouterr().err
+
+
+def test_summary_records_the_p_of_each_lambda(tmp_path):
+    csv = tmp_path / "stats.csv"
+    csv.write_text(_HEADER + _ROWS)
+    figs = tmp_path / "figs"
+    assert _load_script().main([str(csv), "--out-dir", str(figs)]) == 0
+    entry = json.loads((figs / "summary.json").read_text())["decoders"]["pymatching"]
+    assert entry["lambda_p_phys"] == {"3->5": 0.005}  # the lowest p both distances share
+    assert set(entry["lambda"]) == set(entry["lambda_p_phys"])

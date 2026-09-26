@@ -12,6 +12,7 @@ from qec_project.analysis.threshold import (
     estimate_threshold,
     fit_critical,
     lambda_ratios,
+    lambda_ratios_with_p,
     load_points,
     plot_decoder_comparison,
     plot_threshold_crossing,
@@ -52,6 +53,17 @@ def test_lambda_ratio_above_one_below_threshold():
     ratios = lambda_ratios(_synthetic(p_th=0.01, ps=(0.001, 0.002)))
     assert (3, 5) in ratios and (5, 7) in ratios
     assert all(v > 1 for v in ratios.values())
+
+
+def test_lambda_ratios_with_p_reports_the_p_used_per_pair():
+    pts = _synthetic(p_th=0.01, ps=(0.001, 0.002))
+    # No errors at d=7, p=0.001: that cell has p_log = 0, so 5->7 falls back to p=0.002.
+    pts = [q for q in pts if not (q.distance == 7 and q.p_phys == 0.001)] + [
+        LogicalErrorPoint(decoder="x", distance=7, p_phys=0.001, p_log=0.0, rounds=7)
+    ]
+    with_p = lambda_ratios_with_p(pts)
+    assert {k: p for k, (p, _) in with_p.items()} == {(3, 5): 0.001, (5, 7): 0.002}
+    assert {k: lam for k, (_, lam) in with_p.items()} == lambda_ratios(pts)
 
 
 def test_load_points_roundtrip(tmp_path):

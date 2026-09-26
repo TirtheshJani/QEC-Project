@@ -7,7 +7,7 @@ confidence interval, and offers the standard surface-code threshold tools:
 
 * :func:`estimate_threshold` — the crossing point of the ``p_L`` vs ``p`` curves.
 * :func:`lambda_ratios` — the sub-threshold error-suppression factor
-  ``Λ = p_L(d) / p_L(d+2)``.
+  ``Λ = p_L(d) / p_L(d+2)``; :func:`lambda_ratios_with_p` also returns the ``p`` used.
 * :func:`fit_critical` — the finite-size fit ``p_L = A * (p / p_th) ** ((d+1)/2)``.
 * :func:`plot_threshold_crossing` / :func:`plot_decoder_comparison` — figures.
 
@@ -203,10 +203,15 @@ def estimate_threshold(points: Sequence[LogicalErrorPoint]) -> float:
     return float(np.mean(crossings))
 
 
-def lambda_ratios(points: Sequence[LogicalErrorPoint]) -> dict[tuple[int, int], float]:
-    """Error-suppression factor ``Λ = p_L(d) / p_L(d+2)`` at the lowest shared ``p``."""
+def lambda_ratios_with_p(
+    points: Sequence[LogicalErrorPoint],
+) -> dict[tuple[int, int], tuple[float, float]]:
+    """``(p, Λ)`` per distance pair, with ``Λ = p_L(d) / p_L(d+2)`` at the lowest shared ``p``.
+
+    Cells with ``p_log = 0`` are skipped, so ``p`` can differ between pairs.
+    """
     by_d = _by_distance(points)
-    out: dict[tuple[int, int], float] = {}
+    out: dict[tuple[int, int], tuple[float, float]] = {}
     for d in sorted(by_d):
         if d + 2 not in by_d:
             continue
@@ -215,8 +220,13 @@ def lambda_ratios(points: Sequence[LogicalErrorPoint]) -> dict[tuple[int, int], 
             continue
         p = shared[0]
         if by_d[d + 2][p] > 0:
-            out[(d, d + 2)] = by_d[d][p] / by_d[d + 2][p]
+            out[(d, d + 2)] = (p, by_d[d][p] / by_d[d + 2][p])
     return out
+
+
+def lambda_ratios(points: Sequence[LogicalErrorPoint]) -> dict[tuple[int, int], float]:
+    """Error-suppression factor ``Λ = p_L(d) / p_L(d+2)`` at the lowest shared ``p``."""
+    return {pair: lam for pair, (_, lam) in lambda_ratios_with_p(points).items()}
 
 
 def fit_critical(points: Sequence[LogicalErrorPoint]) -> ThresholdFit:
