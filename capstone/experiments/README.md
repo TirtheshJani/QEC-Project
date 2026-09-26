@@ -45,7 +45,7 @@ uv run python scripts/run_threshold_sweep.py \
     --p-phys 0.002 0.003 0.005 0.007 0.01 0.013 0.016 0.02 0.025 \
     --shots 20000 --max-errors 2000 --seed 42 --changelog
 
-# BP+OSD (ldpc) — ~590x the time per shot of MWPM at d=5; d <= 5 for tractable local CPU runtime
+# BP+OSD (ldpc): about 600x the time per shot of MWPM at d=5; d <= 5 for tractable local CPU runtime
 uv run python scripts/run_threshold_sweep.py \
     --decoder bp-osd --noise depolarizing \
     --distances 3 5 \

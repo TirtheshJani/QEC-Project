@@ -165,9 +165,10 @@ for dec, pts in (("MWPM", pm), ("BP+OSD", filter_points(points, decoder="bp-osd"
   is taken at $p=0.002$, where the cells hold 5 to 49 logical errors, so it does not
   rank the decoders; `scripts/lambda_interval.py` gives $\\Lambda$ at $p=0.005$ with an
   interval.
-* **Time per shot (sampling + decoding).** BP+OSD takes ~58$\\times$ as long as MWPM
-  at $d=3$ and ~590$\\times$ at $d=5$ on identical hardware; the gap widens with
-  distance.
+* **Time per shot (sampling + decoding).** BP+OSD takes about 60$\\times$ as long as
+  MWPM at $d=3$ and about 600$\\times$ at $d=5$ on identical hardware (the table above
+  prints the committed values; MWPM's $d=3$ time varies about 2$\\times$ between
+  runs); the gap widens with distance.
 * **Takeaway for the capstone.** Accuracy and real-time feasibility pull in opposite
   directions. Quantifying that frontier under realistic noise is exactly the NRC
   *Decoding algorithm optimization* question — see `capstone/`.

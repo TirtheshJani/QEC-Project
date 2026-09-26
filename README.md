@@ -52,16 +52,16 @@ whose likelihood is within a factor of 1000 of the best fit (`max_likelihood_fac
 | Decoder | fitted $p_\mathrm{th}$ (per round) | distances in the fit | wall time per shot, Stim sampling + decoding (batched), $d=3$ / $d=5$ |
 | --- | --- | --- | --- |
 | MWPM (PyMatching) | $0.0122 \pm 0.0013$ | 3, 5, 7 | 2.1 / 9.1 µs |
-| BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 3, 5 | 123 / 5369 µs (58× / 587× MWPM) |
+| BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 3, 5 | 123 / 5369 µs (about 60× / 600× MWPM) |
 
 The two fitted thresholds overlap within fit error, so this data does not rank the
 decoders by threshold. BP+OSD's measured edge is lower $p_L$ at $d=5$: 11 to 35% lower
 per shot for $p = 0.003$ to $0.01$ (35% at $p = 0.005$), from the committed counts. That
 difference is significant (two-proportion $z > 2$) only for
 $p = 0.005$ to $0.02$, and the two decoders saw independently sampled shots, so the
-comparison is unpaired. BP+OSD pays for it with a time per shot 58× MWPM's at $d=3$
-and 587× at $d=5$: the accuracy vs real-time-feasibility frontier the capstone targets
-(NRC *Decoding algorithm optimization*).
+comparison is unpaired. BP+OSD pays for it with a time per shot about 60× MWPM's at
+$d=3$ and about 600× at $d=5$ (58× and 587× in the committed sweep): the accuracy vs
+real-time-feasibility frontier the capstone targets (NRC *Decoding algorithm optimization*).
 
 Sub-threshold suppression at $p = 0.005$, where each cell holds 192 to 355 logical
 errors: $\Lambda_{3\to5} = p_L(3)/p_L(5)$ is 1.99 (95% interval 1.71 to 2.33) for MWPM
@@ -99,7 +99,9 @@ of order 7), driven through its file-based sinter interface, which rebuilds the 
 for every batch and decodes shot by shot in Python. It is a same-harness comparison,
 not a tuned decoder-only latency benchmark, and it depends on machine load: the committed
 rerun measured 1.0 and 118 µs per shot (MWPM and BP+OSD) at $d=3$ and 7.0 and 5048 µs at
-$d=5$.
+$d=5$, ratios of 121× and 719×. MWPM's $d=3$ cells take 7 to 90 ms each, and its time per
+shot there varies about 2× between runs (2.1 vs 1.0 µs), so the $d=3$ ratio is good only
+to about a factor of 2.
 
 ## Quickstart
 

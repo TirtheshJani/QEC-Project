@@ -18,8 +18,9 @@ BP+OSD** head to head on accuracy *and* latency.
 
 The fitted thresholds overlap within fit error. BP+OSD's measured edge is lower $p_L$
 at $d=5$: 11 to 35% lower per shot for $p = 0.003$ to $0.01$ (35% at $p = 0.005$;
-two-proportion $z > 2$ only for $p = 0.005$ to $0.02$, on unpaired samples), and it takes ~590× as long per shot at $d=5$: the
-accuracy/latency frontier the capstone studies. See the top-level `README.md` for
+two-proportion $z > 2$ only for $p = 0.005$ to $0.02$, on unpaired samples), and it
+takes about 600× as long per shot at $d=5$ (587× in the committed sweep, 719× in the
+committed rerun): the accuracy/latency frontier the capstone studies. See the top-level `README.md` for
 $\Lambda$ with intervals and what the timing measures.
 
 **Run.**

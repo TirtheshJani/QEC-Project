@@ -40,7 +40,7 @@ curriculum builds tooling around it.
 | Decoder | $p_\mathrm{th}$ (fit, per round) | time per shot, sampling + decoding @ d=5 |
 | --- | --- | --- |
 | MWPM (PyMatching) | $0.0122 \pm 0.0013$ ($d=3,5,7$) | ~9 µs |
-| BP+OSD (ldpc) | $0.0134 \pm 0.0015$ ($d=3,5$) | ~5400 µs (~590× MWPM) |
+| BP+OSD (ldpc) | $0.0134 \pm 0.0015$ ($d=3,5$) | ~5400 µs (about 600× MWPM) |
 
 Figures in `capstone/figures/`; reproduce via `capstone/experiments/README.md`.
 The decoders were driven **in-process** (not `sinter.collect`, which is incompatible
