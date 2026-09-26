@@ -159,8 +159,9 @@ for dec, pts in (("MWPM", pm), ("BP+OSD", filter_points(points, decoder="bp-osd"
 * **Threshold (uniform depolarizing).** The curves cross near
   $p_\\mathrm{th}\\approx 0.0119$ (MWPM) and $0.0132$ (BP+OSD); the fits give
   $0.0122\\pm0.0013$ ($d=3,5,7$) and $0.0134\\pm0.0015$ ($d=3,5$), which overlap
-  within fit error. BP+OSD's measured edge is lower $p_L$ at $d=5$ (~35% at
-  $p=0.005$), significant only for $p=0.005$ to $0.02$. The $\\Lambda$ printed above
+  within fit error. BP+OSD's measured edge is lower $p_L$ at $d=5$: 11 to 35% lower
+  per shot for $p = 0.003$ to $0.01$ (35% at $p = 0.005$), significant only for
+  $p=0.005$ to $0.02$. The $\\Lambda$ printed above
   is taken at $p=0.002$, where the cells hold 5 to 49 logical errors, so it does not
   rank the decoders; `scripts/lambda_interval.py` gives $\\Lambda$ at $p=0.005$ with an
   interval.

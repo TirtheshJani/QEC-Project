@@ -55,8 +55,9 @@ whose likelihood is within a factor of 1000 of the best fit (`max_likelihood_fac
 | BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 3, 5 | 123 / 5369 µs (58× / 587× MWPM) |
 
 The two fitted thresholds overlap within fit error, so this data does not rank the
-decoders by threshold. BP+OSD's measured edge is lower $p_L$ at $d=5$ (35% lower at
-$p=0.005$). That difference is significant (two-proportion $z > 2$) only for
+decoders by threshold. BP+OSD's measured edge is lower $p_L$ at $d=5$: 11 to 35% lower
+per shot for $p = 0.003$ to $0.01$ (35% at $p = 0.005$), from the committed counts. That
+difference is significant (two-proportion $z > 2$) only for
 $p = 0.005$ to $0.02$, and the two decoders saw independently sampled shots, so the
 comparison is unpaired. BP+OSD pays for it with a time per shot 58× MWPM's at $d=3$
 and 587× at $d=5$: the accuracy vs real-time-feasibility frontier the capstone targets
