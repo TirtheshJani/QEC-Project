@@ -44,28 +44,52 @@ seeded Monte-Carlo harness.
 
 ![Surface-code threshold crossing under MWPM](capstone/figures/threshold_depolarizing_pymatching.png)
 
-| Decoder | threshold $p_\mathrm{th}$ (per round) | suppression $\Lambda_{3\to5}$ at $p=0.002$ | decode latency @ d=5 |
-| --- | --- | --- | --- |
-| MWPM (PyMatching) | $0.0122 \pm 0.0013$ | 5.8× | ~9 µs/shot |
-| BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 6.3× | ~5400 µs/shot (~600× slower) |
+*MWPM, per-round logical error rate at $d = 3, 5, 7$ (committed 2026-06-19 sweep). The
+dashed line is the curve-crossing estimate ($p \approx 0.0119$), not the fitted
+$p_\mathrm{th}$ in the table. Error bars are sinter likelihood-ratio intervals: the rates
+whose likelihood is within a factor of 1000 of the best fit (`max_likelihood_factor=1000`).*
 
-At $p=0.002$ each $+2$ in code distance suppresses the logical error rate ~4–6×
-(those cells hold only 5 to 49 logical errors, so $\Lambda$ there is uncertain; at
-$p=0.005$ it is ~2–3×); the $d=3,5,7$ curves cross at $p_\mathrm{th}$. BP+OSD is
-the more accurate decoder at $d=5$ (lower $p_L$ than MWPM at all nine swept $p$, ~35%
-lower at $p=0.005$), though its fitted threshold is within the fit uncertainty of
-MWPM's, and it pays a steep, distance-scaling latency cost — exactly the accuracy vs
-real-time-feasibility frontier the capstone targets (NRC *Decoding algorithm
-optimization*). Every number is seed- and commit-stamped in
-[`CHANGELOG.md`](CHANGELOG.md); reproduce via
-[`capstone/experiments/README.md`](capstone/experiments/README.md).
+| Decoder | fitted $p_\mathrm{th}$ (per round) | distances in the fit | wall time per shot, Stim sampling + decoding (batched), $d=3$ / $d=5$ |
+| --- | --- | --- | --- |
+| MWPM (PyMatching) | $0.0122 \pm 0.0013$ | 3, 5, 7 | 2.1 / 9.1 µs |
+| BP+OSD (ldpc)     | $0.0134 \pm 0.0015$ | 3, 5 | 123 / 5369 µs (58× / 587× MWPM) |
+
+The two fitted thresholds overlap within fit error, so this data does not rank the
+decoders by threshold. BP+OSD's measured edge is lower $p_L$ at $d=5$ (35% lower at
+$p=0.005$). That difference is significant (two-proportion $z > 2$) only for
+$p = 0.005$ to $0.02$, and the two decoders saw independently sampled shots, so the
+comparison is unpaired. BP+OSD pays for it with a time per shot 58× MWPM's at $d=3$
+and 587× at $d=5$: the accuracy vs real-time-feasibility frontier the capstone targets
+(NRC *Decoding algorithm optimization*).
+
+Sub-threshold suppression at $p = 0.005$, where each cell holds 192 to 355 logical
+errors: $\Lambda_{3\to5} = p_L(3)/p_L(5)$ is 1.99 (95% interval 1.71 to 2.33) for MWPM
+and 2.72 (2.27 to 3.25) for BP+OSD (the two intervals overlap), and MWPM's
+$\Lambda_{5\to7}$ is 1.97 (1.65 to 2.35).
+The intervals come from a seeded parametric bootstrap on the binomial counts:
+`uv run python scripts/lambda_interval.py capstone/experiments/sweep-2026-06-19-*/stats.csv --p 0.005`.
+The fresh rerun described below gives $\Lambda_{3\to5}$ of 1.97 and 2.70 at this $p$.
+$\Lambda$ at the lowest swept $p = 0.002$ is not reported: those cells hold 5 to 49
+errors, and the same rerun moves $\Lambda_{3\to5}$ there from 5.8 and 6.3 to 4.2 and 10.6.
+
+The committed 2026-06-19 data was sampled with per-process seeds (see
+[`capstone/experiments/README.md`](capstone/experiments/README.md)). A fresh run of the
+documented commands, deterministic since f5a48b3, gives $p_\mathrm{th} = 0.0123 \pm 0.0012$
+(MWPM) and $0.0145 \pm 0.0016$ (BP+OSD), consistent with the table within fit error.
+Every number is seed- and commit-stamped in [`CHANGELOG.md`](CHANGELOG.md).
 
 How the numbers are measured: $p_\mathrm{th}$ is a fit of
 $p_L = A\,(p/p_\mathrm{th})^{(d+1)/2}$ to per-round logical error rates over the whole
-$p$ grid (the per-shot curves cross lower, near $p = 0.007$). Latency is wall-clock
-time per shot for Stim sampling plus decoding, summed over the $p$ grid at $d=5$, with
-cells running in parallel worker processes; BP+OSD runs through ldpc's file-based
-sinter interface. It is a same-harness comparison, not a tuned decoder-only benchmark.
+$p$ grid (the per-shot curves cross lower, near $p = 0.007$). BP+OSD is fitted on
+$d = 3, 5$ and MWPM on $d = 3, 5, 7$. The fit window is a systematic: restricting it to
+$p \le 0.01$ moves MWPM to $0.0101 \pm 0.0005$ and BP+OSD to $0.0122 \pm 0.0013$. Time
+per shot is wall-clock time for Stim sampling plus decoding, summed over the $p$ grid at
+each distance and divided by the number of shots, with cells running in parallel worker
+processes. BP+OSD is ldpc's `SinterBpOsdDecoder` (min-sum BP with `max_iter=20`, OSD-CS
+of order 7), driven through its file-based sinter interface, which rebuilds the decoder
+for every batch and decodes shot by shot in Python. It is a same-harness comparison,
+not a tuned decoder-only latency benchmark, and it depends on machine load: the fresh
+rerun above measured 7.2 and 5236 µs per shot at $d=5$.
 
 ## Quickstart
 
