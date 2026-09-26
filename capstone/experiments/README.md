@@ -53,8 +53,9 @@ uv run python scripts/run_threshold_sweep.py \
     --shots 20000 --max-errors 2000 --seed 42 --changelog
 
 # Figures + summary.json (estimated threshold, fit p_th, Λ ratios) from the committed
-# sweeps. To plot a rerun, pass its stats.csv files instead; make_figures.py warns if
-# two inputs contain the same (decoder, distance, p) cell.
+# sweeps. To plot a rerun, pass its stats.csv files instead, with --out-dir set so the
+# committed figures are kept; make_figures.py warns if two inputs contain the same
+# (decoder, distance, p) cell.
 uv run python scripts/make_figures.py \
     capstone/experiments/sweep-2026-06-19-*/stats.csv --noise depolarizing
 ```
