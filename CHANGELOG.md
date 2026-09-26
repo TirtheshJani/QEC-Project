@@ -64,6 +64,11 @@ Phases 0, 1 and 3 complete. Phase 2 has 2.1 (3-qubit repetition code) and 2.2 (S
 
 | Run ID | Code | Distance | Decoder | Noise model | p_phys | p_log | shots | seed | commit | notes |
 | ------ | ---- | -------- | ------- | ----------- | ------ | ----- | ----- | ---- | ------ | ----- |
+| rerun-2026-09-26-bp-osd-depolarizing | rotated-surface | 5 | bp-osd | depolarizing | 5.000e-03 | 1.945e-03 | 20000 | 42 | 1218c55 | in-process harness, local CPU, per-round p_log |
+| rerun-2026-09-26-bp-osd-depolarizing | rotated-surface | 3 | bp-osd | depolarizing | 5.000e-03 | 5.255e-03 | 20000 | 42 | 1218c55 | in-process harness, local CPU, per-round p_log |
+| rerun-2026-09-26-pymatching-depolarizing | rotated-surface | 7 | pymatching | depolarizing | 5.000e-03 | 1.485e-03 | 20000 | 42 | 1218c55 | in-process harness, local CPU, per-round p_log |
+| rerun-2026-09-26-pymatching-depolarizing | rotated-surface | 5 | pymatching | depolarizing | 5.000e-03 | 2.985e-03 | 20000 | 42 | 1218c55 | in-process harness, local CPU, per-round p_log |
+| rerun-2026-09-26-pymatching-depolarizing | rotated-surface | 3 | pymatching | depolarizing | 5.000e-03 | 5.886e-03 | 20000 | 42 | 1218c55 | in-process harness, local CPU, per-round p_log |
 | rerun-2026-09-26-bp-osd-depolarizing | rotated-surface | 5 | bp-osd | depolarizing | 5.000e-03 | 1.945e-03 | 20000 | 42 | 3cb79d9 | fixed-seed rerun of the documented command after the crc32 seed fix; deterministic; stats.csv not committed |
 | rerun-2026-09-26-bp-osd-depolarizing | rotated-surface | 3 | bp-osd | depolarizing | 5.000e-03 | 5.255e-03 | 20000 | 42 | 3cb79d9 | fixed-seed rerun of the documented command after the crc32 seed fix; deterministic; stats.csv not committed |
 | rerun-2026-09-26-pymatching-depolarizing | rotated-surface | 7 | pymatching | depolarizing | 5.000e-03 | 1.485e-03 | 20000 | 42 | 3cb79d9 | fixed-seed rerun of the documented command after the crc32 seed fix; deterministic; stats.csv not committed |
@@ -76,6 +81,8 @@ Phases 0, 1 and 3 complete. Phase 2 has 2.1 (3-qubit repetition code) and 2.2 (S
 | sweep-2026-06-19-pymatching-depolarizing | rotated-surface | 3 | pymatching | depolarizing | 5.000e-03 | 5.988e-03 | 20000 | 42 | 678ee59 | in-process harness, local CPU, per-round p_log |
 
 ## Failed approaches & why
+
+- 2026-09-26  Committing to the repo while a sweep with --changelog is running gives its accuracy rows the wrong commit: run_threshold_sweep.py stamps stats.csv and run.json with HEAD at the start, but update_changelog.py stamps each row with HEAD when it appends at the end. It happened on the rerun-2026-09-26 BP+OSD rows (stamped 9aa1b05, run at 1218c55; harness unchanged in between) and was corrected by hand. Do not commit during a --changelog sweep, or pass the sweep commit through to the helper.
 
 - 2026-09-26  scripts/update_changelog.py raises re.error (bad escape) when --text contains a backslash sequence such as one before lbrace, because append_under passes the text into a re.sub replacement template. Workaround this session: write CHANGELOG text without backslashes. The helper itself is unchanged (not in this round's scope).
 
