@@ -8,12 +8,15 @@ import pytest
 
 from qec_project.analysis.threshold import (
     LogicalErrorPoint,
+    duplicate_cells,
     estimate_threshold,
     fit_critical,
     lambda_ratios,
     load_points,
     point_from_counts,
 )
+
+_HEADER = "decoder,noise,distance,rounds,p_phys,shots,errors,seconds,seed,commit\n"
 
 
 def _synthetic(p_th=0.006, amp=0.4, distances=(3, 5, 7), ps=(0.001, 0.002, 0.003, 0.004)):
@@ -72,3 +75,21 @@ def test_point_from_counts_zero_errors():
 def test_fit_critical_needs_enough_points():
     with pytest.raises(ValueError):
         fit_critical([LogicalErrorPoint(decoder="x", distance=3, p_phys=0.001, p_log=0.01)])
+
+
+def test_duplicate_cells_flags_a_cell_present_in_two_csvs(tmp_path):
+    a, b = tmp_path / "a.csv", tmp_path / "b.csv"
+    a.write_text(
+        _HEADER
+        + "pymatching,depolarizing,3,3,0.005,10000,120,0.1,42,abc1234\n"
+        + "pymatching,depolarizing,5,5,0.005,10000,30,0.2,42,abc1234\n"
+    )
+    b.write_text(_HEADER + "pymatching,depolarizing,3,3,0.005,20000,250,0.1,42,def5678\n")
+    assert duplicate_cells(a, b) == {("pymatching", "depolarizing", 3, 0.005): [a, b]}
+
+
+def test_duplicate_cells_empty_for_disjoint_csvs(tmp_path):
+    a, b = tmp_path / "a.csv", tmp_path / "b.csv"
+    a.write_text(_HEADER + "pymatching,depolarizing,3,3,0.005,10000,120,0.1,42,abc1234\n")
+    b.write_text(_HEADER + "bp-osd,depolarizing,3,3,0.005,10000,90,5.0,42,abc1234\n")
+    assert duplicate_cells(a, b) == {}

@@ -20,9 +20,11 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 from pathlib import Path
 
 from qec_project.analysis.threshold import (
+    duplicate_cells,
     estimate_threshold,
     filter_points,
     fit_critical,
@@ -45,6 +47,17 @@ def main(argv: list[str] | None = None) -> int:
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    dups = duplicate_cells(*args.csvs)
+    if dups:
+        lines = [
+            f"WARNING: {len(dups)} cells appear in more than one input CSV. Each copy is fitted "
+            "as a separate point, which shifts the fit and shrinks its error bar. Pass one "
+            "stats.csv per decoder (the committed data is capstone/experiments/sweep-2026-06-19-*).",
+        ]
+        for (dec, noise, d, p), paths in sorted(dups.items()):
+            lines.append(f"  {dec} d={d} p={p} ({noise}): " + ", ".join(map(str, paths)))
+        print("\n".join(lines), file=sys.stderr)
 
     points = filter_points(load_points(*args.csvs), noise=args.noise)
     if not points:

@@ -120,6 +120,30 @@ def load_points(*csv_paths: str | Path) -> list[LogicalErrorPoint]:
     return points
 
 
+def duplicate_cells(
+    *csv_paths: str | Path,
+) -> dict[tuple[str, str, int, float], list[Path]]:
+    """Return the ``(decoder, noise, distance, p_phys)`` cells found in more than one row.
+
+    Each sweep CSV holds one row per cell, so a repeat means two sweeps of the
+    same cell were passed together (e.g. a rerun next to the committed data).
+    :func:`load_points` would then treat them as independent points. Maps each
+    repeated cell to the files it came from, in input order.
+    """
+    seen: dict[tuple[str, str, int, float], list[Path]] = defaultdict(list)
+    for path in csv_paths:
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                key = (
+                    row["decoder"],
+                    row.get("noise", "depolarizing"),
+                    int(row["distance"]),
+                    float(row["p_phys"]),
+                )
+                seen[key].append(Path(path))
+    return {k: v for k, v in seen.items() if len(v) > 1}
+
+
 def filter_points(
     points: Iterable[LogicalErrorPoint], *, decoder: str | None = None, noise: str | None = None
 ) -> list[LogicalErrorPoint]:
