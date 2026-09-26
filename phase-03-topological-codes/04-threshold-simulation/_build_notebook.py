@@ -108,12 +108,15 @@ fit error — a good consistency check. $\\Lambda > 1$ confirms error suppressio
           f"± {fit.p_th_stderr:.4f} | Λ = {lam}")"""
     ),
     md(
-        """## Head to head: accuracy vs latency
+        """## Head to head: accuracy vs time per shot
 
-BP+OSD exploits the full hyperedge structure of the DEM, so it is **more accurate**
-(higher threshold, stronger suppression) than graph-based MWPM. But it is **far
-slower** — and the cost gap grows steeply with distance. For the *Decoding algorithm
-optimization* objective (real-time signal recovery), that latency scaling is the
+BP+OSD exploits the full hyperedge structure of the DEM, and on this data it has
+**lower $p_L$ at $d=5$** than graph-based MWPM: significantly lower (two-proportion
+$z > 2$) for $p = 0.005$ to $0.02$, on independently sampled (unpaired) shots. Its
+fitted threshold overlaps MWPM's within fit error. But it is **far slower**, and the
+cost gap grows steeply with distance. The timing below is wall time per shot for Stim
+sampling plus decoding, batched, not a decoder-only latency. For the *Decoding
+algorithm optimization* objective (real-time signal recovery), that scaling is the
 crux."""
     ),
     code(
@@ -143,11 +146,17 @@ for dec, pts in (("MWPM", pm), ("BP+OSD", filter_points(points, decoder="bp-osd"
     md(
         """## Result
 
-* **Threshold (uniform depolarizing).** MWPM $p_\\mathrm{th}\\approx 0.0119$;
-  BP+OSD $p_\\mathrm{th}\\approx 0.0132$ — BP+OSD's higher threshold and larger
-  $\\Lambda$ make it the more accurate decoder on this model.
-* **Latency.** BP+OSD is ~60$\\times$ slower than MWPM at $d=3$ and ~600$\\times$
-  at $d=5$ on identical hardware; the gap widens with distance.
+* **Threshold (uniform depolarizing).** The curves cross near
+  $p_\\mathrm{th}\\approx 0.0119$ (MWPM) and $0.0132$ (BP+OSD); the fits give
+  $0.0122\\pm0.0013$ ($d=3,5,7$) and $0.0134\\pm0.0015$ ($d=3,5$), which overlap
+  within fit error. BP+OSD's measured edge is lower $p_L$ at $d=5$ (~35% at
+  $p=0.005$), significant only for $p=0.005$ to $0.02$. The $\\Lambda$ printed above
+  is taken at $p=0.002$, where the cells hold 5 to 49 logical errors, so it does not
+  rank the decoders; `scripts/lambda_interval.py` gives $\\Lambda$ at $p=0.005$ with an
+  interval.
+* **Time per shot (sampling + decoding).** BP+OSD takes ~58$\\times$ as long as MWPM
+  at $d=3$ and ~590$\\times$ at $d=5$ on identical hardware; the gap widens with
+  distance.
 * **Takeaway for the capstone.** Accuracy and real-time feasibility pull in opposite
   directions. Quantifying that frontier under realistic noise is exactly the NRC
   *Decoding algorithm optimization* question — see `capstone/`.

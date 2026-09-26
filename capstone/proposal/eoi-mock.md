@@ -40,10 +40,11 @@ rotated-surface-code threshold study comparing **MWPM (PyMatching)** and **BP+OS
 (ldpc)** under uniform circuit-level depolarizing noise (Stim + an in-process,
 seeded Monte-Carlo harness; resumable CSV + provenance manifests). MWPM reproduces a
 clean threshold crossing at $p_\mathrm{th}\approx 0.0119$ (finite-size fit
-$0.0122\pm0.0013$) with sub-threshold suppression $\Lambda_{3\to5}=5.8$; BP+OSD
-reaches a higher threshold ($\approx 0.0132$) and ~35% lower logical error at $d=5$,
-but at ~600× the per-shot decode latency. Figures: `capstone/figures/`; data and
-provenance: `capstone/experiments/`.
+$0.0122\pm0.0013$) with sub-threshold suppression $\Lambda_{3\to5}=5.8$; BP+OSD's
+fitted threshold ($0.0134\pm0.0015$) overlaps MWPM's within fit error, and its measured
+edge is ~35% lower logical error at $d=5$, $p=0.005$ (significant only for $p=0.005$
+to $0.02$), at ~590× the per-shot time for sampling plus decoding. Figures:
+`capstone/figures/`; data and provenance: `capstone/experiments/`.
 
 ## 2. Project team and resources
 
@@ -113,7 +114,8 @@ useful FT processor in the millions of physical qubits.
 BP+OSD attains ~35% lower logical error than MWPM at $d=5$, $p=0.005$
 ($p_L \approx 1.9\times10^{-3}$ vs $3.0\times10^{-3}$) but at ~600× the per-shot
 decode time (~5400 µs vs ~9 µs), and that latency gap widens with distance (~58× at
-$d=3$). At fixed accuracy, MWPM's ~$10^3$× lower latency is what keeps it on the
+$d=3$). At fixed accuracy, MWPM's ~590× shorter sampling-plus-decoding time per shot
+at $d=5$ is what keeps it on the
 real-time critical path; pinning down exactly where a more accurate decoder stops
 being real-time-feasible is the contribution. Full SI1000 / biased-noise estimates
 follow in Phase 5.
