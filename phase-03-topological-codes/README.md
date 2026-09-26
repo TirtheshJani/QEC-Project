@@ -16,13 +16,13 @@ curriculum builds tooling around it.
 4. MWPM decoding: detector graphs, error-edge weights, perfect matching.
 5. **PyMatching** in anger: feed it a Stim DEM, decode batches, measure
    logical error rate.
-6. Threshold simulation: vary $p_{\\text{phys}}$ and $d$; produce the canonical
-   crossing plot. Extract $p_{\\text{th}}$ and sub-threshold $\\Lambda$.
+6. Threshold simulation: vary $p_{\text{phys}}$ and $d$; produce the canonical
+   crossing plot. Extract $p_{\text{th}}$ and sub-threshold $\Lambda$.
 
 ## Deliverables
 
 - [x] `01-toric-and-surface/`: construct the rotated surface code at
-      $d \\in \\{3,5,7\\}$ programmatically; visualize the check lattice. Promoted
+      $d \in \lbrace 3,5,7 \rbrace$ programmatically; visualize the check lattice. Promoted
       `qec_project.codes.surface.RotatedSurfaceCode`.
 - [x] `02-syndrome-extraction/`: sample the detector stream in Stim; verify the
       noiseless circuit fires no detectors; show detection density vs $p$.
@@ -37,16 +37,17 @@ curriculum builds tooling around it.
 
 ## Result (uniform depolarizing noise, seed 42)
 
-| Decoder | $p_\\mathrm{th}$ (fit, per round) | $\\Lambda_{3\\to5}$ at $p=0.002$ | latency @ d=5 |
-| --- | --- | --- | --- |
-| MWPM (PyMatching) | $0.0122 \\pm 0.0013$ | 5.8 | ~9 µs/shot |
-| BP+OSD (ldpc) | $0.0134 \\pm 0.0015$ | 6.3 | ~5400 µs/shot (~600× slower) |
+| Decoder | $p_\mathrm{th}$ (fit, per round) | time per shot, sampling + decoding @ d=5 |
+| --- | --- | --- |
+| MWPM (PyMatching) | $0.0122 \pm 0.0013$ ($d=3,5,7$) | ~9 µs |
+| BP+OSD (ldpc) | $0.0134 \pm 0.0015$ ($d=3,5$) | ~5400 µs (~590× MWPM) |
 
 Figures in `capstone/figures/`; reproduce via `capstone/experiments/README.md`.
 The decoders were driven **in-process** (not `sinter.collect`, which is incompatible
 with NumPy 2.x here — see `CHANGELOG.md`). The threshold is specific to the
-uniform-depolarizing model, not a published circuit-level number. See the top-level
-`README.md` for what the latency column measures and how uncertain $\Lambda$ is here.
+uniform-depolarizing model, not a published circuit-level number. The two fitted
+thresholds overlap within fit error. See the top-level `README.md` for what the timing
+measures, the fit-window systematic, and $\Lambda$ at $p=0.005$ with intervals.
 
 ## Workflow hints
 
@@ -60,6 +61,7 @@ uniform-depolarizing model, not a published circuit-level number. See the top-le
 - Austin G. Fowler, Matteo Mariantoni, John M. Martinis, Andrew N. Cleland,
   *Surface codes: Towards practical large-scale quantum computation.* Phys.
   Rev. A 86, 032324 (2012). arXiv:1208.0928.
-- Oscar Higgott, *PyMatching v2.* arXiv:2303.15933.
+- Oscar Higgott, Craig Gidney, *Sparse Blossom: correcting a million errors per core
+  second with minimum-weight matching.* arXiv:2303.15933.
 - Google Quantum AI, *Suppressing quantum errors by scaling a surface code
   logical qubit.* Nature 614, 676 (2023). arXiv:2207.06431.
