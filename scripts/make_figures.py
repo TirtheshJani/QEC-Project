@@ -14,6 +14,10 @@ Reads one or more ``stats.csv`` files produced by
 
 Usage (the committed sweeps; pass one stats.csv per decoder):
     python scripts/make_figures.py capstone/experiments/sweep-2026-06-19-*/stats.csv --noise depolarizing
+
+``--p-max P`` also prints, per decoder, the same fit restricted to the points with
+``p <= P``. This is a post-hoc check of the fit window (added on 2026-09-26, after the
+data was seen); it is printed only, so the figures and ``summary.json`` are unchanged.
 """
 
 from __future__ import annotations
@@ -44,6 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--noise", default="depolarizing")
     ap.add_argument("--out-dir", default=str(REPO / "capstone" / "figures"))
     ap.add_argument("--compare-distance", type=int, default=5)
+    ap.add_argument(
+        "--p-max", type=float, default=None,
+        help="also print the fit on p <= P only (post-hoc window check; not written to files)",
+    )
     args = ap.parse_args(argv)
 
     out_dir = Path(args.out_dir)
@@ -101,6 +109,15 @@ def main(argv: list[str] | None = None) -> int:
         cstr = "nan" if math.isnan(crossing) else f"{crossing:.4f}"
         fstr = "n/a" if fit_info is None else f"{fit_info['p_th']:.4f}±{fit_info['p_th_stderr']:.4f}"
         print(f"{decoder:>11}: crossing≈{cstr}  fit p_th={fstr}  Λ={lam}")
+        if args.p_max is not None:
+            window = [q for q in pts if q.p_phys <= args.p_max]
+            try:
+                wfit = fit_critical(window)
+                wstr = f"{wfit.p_th:.4f}±{wfit.p_th_stderr:.4f}"
+            except ValueError:
+                wstr = "n/a"
+            print(f"             post-hoc fit window p <= {args.p_max:g}: p_th={wstr} "
+                  f"({len(window)} points; printed only, not written to summary.json)")
         print(f"             wrote {fig.name} (+ .svg)")
 
     if len(decoders) >= 2:

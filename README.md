@@ -91,9 +91,12 @@ How the numbers are measured: $p_\mathrm{th}$ is a fit of
 $p_L = A\,(p/p_\mathrm{th})^{(d+1)/2}$ to per-round logical error rates over the whole
 $p$ grid (the per-shot curves cross lower, near $p = 0.007$). BP+OSD is fitted on
 $d = 3, 5$ and MWPM on $d = 3, 5, 7$. The fit window is a systematic: restricting it to
-$p \le 0.01$ moves MWPM to $0.0101 \pm 0.0005$ and BP+OSD to $0.0122 \pm 0.0013$. Time
-per shot is wall-clock time for Stim sampling plus decoding, summed over the $p$ grid at
-each distance and divided by the number of shots, with cells running in parallel worker
+$p \le 0.01$ (a post-hoc check) moves MWPM to $0.0101 \pm 0.0005$ and BP+OSD to
+$0.0122 \pm 0.0013$, as printed by
+`uv run python scripts/make_figures.py capstone/experiments/sweep-2026-06-19-*/stats.csv --noise depolarizing --p-max 0.01`
+(the files it writes are unchanged, so `git status` stays clean). Time per shot is
+wall-clock time for Stim sampling plus decoding, summed over the $p$ grid at each
+distance and divided by the number of shots, with cells running in parallel worker
 processes. Both decoders are built from the same Stim circuit, but MWPM is PyMatching's
 default (uncorrelated) matching on the decomposed, graphlike detector error model, while
 BP+OSD decodes the undecomposed model with its hyperedges, so this comparison does not
