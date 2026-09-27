@@ -11,7 +11,7 @@ BP+OSD** head to head on accuracy *and* time per shot (Stim sampling plus decodi
 **Headline result** (uniform depolarizing noise, seed 42; see
 `capstone/figures/summary.json` and `CHANGELOG.md`):
 
-| Decoder | $p_\mathrm{th}$ (fit, per round) | time per shot, sampling + decoding @ d=5 | accuracy @ d=5, p=0.005 |
+| Decoder | $p_\mathrm{th}$ (fit, per round) | time per shot, sampling + decoding @ d=5 | accuracy @ d=5, p=0.005 (per round) |
 | --- | --- | --- | --- |
 | MWPM (PyMatching) | $0.0122 \pm 0.0013$ ($d=3,5,7$) | ~9 µs | $p_L = 3.0\times10^{-3}$ |
 | BP+OSD (ldpc) | $0.0134 \pm 0.0015$ ($d=3,5$) | ~5400 µs | $p_L = 1.9\times10^{-3}$ |
