@@ -1,9 +1,10 @@
 """Map ``--decoder`` names to the decoder back-ends the sweep harness needs.
 
 Phase 3 capstone benchmark. Keeping this mapping in one place lets the sweep
-harness stay agnostic about decoder internals and makes the MWPM-vs-BP+OSD
-head-to-head genuinely apples-to-apples: every decoder consumes the *same*
-detector error model derived from one Stim circuit.
+harness stay agnostic about decoder internals. Every decoder is built from the
+same Stim circuit, but not from the same detector error model (DEM):
+:mod:`qec_project.decoders.harness` gives MWPM the decomposed (graphlike) DEM and
+BP+OSD / belief-find the undecomposed DEM, hyperedges included.
 
 * ``pymatching`` — MWPM (Sparse Blossom), decoded in-process via
   :class:`pymatching.Matching`.

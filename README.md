@@ -94,9 +94,13 @@ $d = 3, 5$ and MWPM on $d = 3, 5, 7$. The fit window is a systematic: restrictin
 $p \le 0.01$ moves MWPM to $0.0101 \pm 0.0005$ and BP+OSD to $0.0122 \pm 0.0013$. Time
 per shot is wall-clock time for Stim sampling plus decoding, summed over the $p$ grid at
 each distance and divided by the number of shots, with cells running in parallel worker
-processes. BP+OSD is ldpc's `SinterBpOsdDecoder` (min-sum BP with `max_iter=20`, OSD-CS
-of order 7), driven through its file-based sinter interface, which rebuilds the decoder
-for every batch and decodes shot by shot in Python. It is a same-harness comparison,
+processes. Both decoders are built from the same Stim circuit, but MWPM is PyMatching's
+default (uncorrelated) matching on the decomposed, graphlike detector error model, while
+BP+OSD decodes the undecomposed model with its hyperedges, so this comparison does not
+separate the decoder algorithm from the error model it is given. BP+OSD is ldpc's
+`SinterBpOsdDecoder` (min-sum BP with `max_iter=20`, OSD-CS of order 7), driven
+through its file-based sinter interface, which rebuilds the decoder for every batch and
+decodes shot by shot in Python. It is a same-harness comparison,
 not a tuned decoder-only latency benchmark, and it depends on machine load: the committed
 rerun measured 1.0 and 118 µs per shot (MWPM and BP+OSD) at $d=3$ and 7.0 and 5048 µs at
 $d=5$, ratios of 121× and 719×. MWPM's $d=3$ cells take 7 to 90 ms each, and its time per

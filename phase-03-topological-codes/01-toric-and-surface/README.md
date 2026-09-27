@@ -2,7 +2,8 @@
 
 **Goal.** Construct the rotated surface code $[[d^2,1,d]]$ programmatically at
 $d \in \{3,5,7\}$, inspect its memory circuit, visualise the check lattice, and
-build the decomposed detector error model (DEM) that every decoder consumes.
+build the decomposed detector error model (DEM) that the MWPM decoder consumes
+(BP+OSD in Phase 3.4 decodes the undecomposed DEM of the same circuit).
 
 **Notebook.** [`toric_and_surface.ipynb`](toric_and_surface.ipynb) — built from
 `_build_notebook.py`; uses `qec_project.codes.surface.RotatedSurfaceCode`.
