@@ -104,6 +104,8 @@ Phases 0, 1 and 3 complete. Phase 2 has 2.1 (3-qubit repetition code) and 2.2 (S
 
 ## Known limitations
 
+- 2026-09-27  The accuracy table holds two sets of rows under the run IDs rerun-2026-09-26-pymatching-depolarizing and rerun-2026-09-26-bp-osd-depolarizing. The five stamped 3cb79d9 (note 'stats.csv not committed') are an earlier run of the same documented commands under the same run ID; their p_log values are identical to the later run's, as expected from the deterministic harness (since f5a48b3). The committed capstone/experiments/rerun-2026-09-26-*/stats.csv and run.json are from the later run at 1218c55 and match the five rows stamped 1218c55. Future reruns should pass a distinct --run-id.
+
 - 2026-09-26  The headline thresholds are fit-dependent. fit_critical fits p_L = A (p/p_th)^((d+1)/2) over the whole p grid, including points far above threshold. Restricting the committed data to p <= 0.01 gives p_th 0.0101+-0.0005 (MWPM) and 0.0122+-0.0013 (BP+OSD), and a reseeded BP+OSD rerun moves the full-grid fit from 0.0134 to 0.0145. The MWPM and BP+OSD thresholds are not significantly different (difference 0.0013, combined stderr 0.0020). The latency column is Stim sampling plus decoding wall time per shot, with BP+OSD going through ldpc's file-based sinter interface; it is not a decoder-only benchmark.
 
 - 2026-09-26  The 2026-06-19 sweeps (stats.csv, run.json, accuracy rows) are stamped commit 678ee59, but at 678ee59 run_threshold_sweep.py is still the skeleton and harness.py does not exist. They ran from the uncommitted tree that became 725c700; the exact match of their p <= 0.01 cells under the recovered seed salts shows that 725c700's harness samples identically. run_threshold_sweep.py does not flag a dirty tree.
