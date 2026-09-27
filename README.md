@@ -87,9 +87,13 @@ The committed 2026-06-19 data was sampled with per-process seeds (see
 documented commands at 1218c55 (seed 42, 2 worker processes; deterministic since f5a48b3)
 is committed as `capstone/experiments/rerun-2026-09-26-*/`. It gives
 $p_\mathrm{th} = 0.0123 \pm 0.0012$ (MWPM) and $0.0145 \pm 0.0016$ (BP+OSD), consistent
-with the table within fit error. The rerun numbers on this page come from passing its
-`stats.csv` files to `scripts/lambda_interval.py`, or to `scripts/make_figures.py` with
-`--out-dir` set so the committed figures are not overwritten. Both sweeps' accuracy rows
+with the table within fit error. The rerun's fit and $\Lambda$ values on this page come
+from passing its `stats.csv` files to `scripts/lambda_interval.py`, or to
+`scripts/make_figures.py` with `--out-dir` set so the committed figures are not
+overwritten. The times per shot, for
+both sweeps, are the `seconds` column of `stats.csv` summed over the $p$ grid at each
+distance and divided by the total shots there; the Phase 3.4 notebook computes this for
+the committed sweep, and no script prints it for the rerun. Both sweeps' accuracy rows
 at $p = 0.005$ are seed- and commit-stamped in [`CHANGELOG.md`](CHANGELOG.md).
 
 How the numbers are measured: $p_\mathrm{th}$ is a fit of
