@@ -23,6 +23,7 @@ from __future__ import annotations
 import shutil
 import tempfile
 import time
+import zlib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -110,11 +111,13 @@ class _FileDecoder(_CompiledDecoder):
 
 
 def _cell_seed(seed: int, decoder: str, distance: int, p_phys: float, offset: int) -> int:
-    """Deterministic per-cell Stim seed (independent of worker scheduling)."""
+    """Deterministic per-cell Stim seed (independent of worker scheduling and process)."""
     h = (int(seed) & 0x7FFFFFFF) * 1_000_003
     h += distance * 100_003
     h += round(p_phys * 1e9) * 101
-    h += (hash(decoder) & 0xFFFF) * 31
+    # zlib.crc32, not hash(): str hashes are salted per process (PYTHONHASHSEED),
+    # which made the seed, and so the samples, change between invocations.
+    h += (zlib.crc32(decoder.encode()) & 0xFFFF) * 31
     h += offset
     return h % (2**31 - 1)
 

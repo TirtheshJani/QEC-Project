@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+
 import numpy as np
 import pytest
 import sinter
@@ -66,6 +70,25 @@ def test_sample_cell_is_reproducible():
     a = sample_cell(decoder="pymatching", distance=3, p_phys=0.005, shots=3000, seed=11)
     b = sample_cell(decoder="pymatching", distance=3, p_phys=0.005, shots=3000, seed=11)
     assert a.errors == b.errors
+
+
+def test_cell_seed_is_stable_across_processes():
+    # str hashes are salted per process (PYTHONHASHSEED); the Stim seed must not depend on that.
+    code = (
+        "from qec_project.decoders.harness import _cell_seed; "
+        "print(_cell_seed(42, 'pymatching', 3, 0.005, 0), _cell_seed(42, 'bp-osd', 3, 0.005, 0))"
+    )
+    outputs = {
+        subprocess.run(
+            [sys.executable, "-c", code],
+            env={**os.environ, "PYTHONHASHSEED": str(h)},
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        for h in (1, 2)
+    }
+    assert len(outputs) == 1, outputs
 
 
 def test_sample_cell_rejects_bad_shots():

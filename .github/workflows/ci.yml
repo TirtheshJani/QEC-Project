@@ -31,8 +31,7 @@ jobs:
       - name: Lint
         run: uv run ruff check .
 
-      - name: Type-check (advisory)
-        continue-on-error: true
+      - name: Type-check
         run: uv run mypy src/qec_project
 
       - name: Tests

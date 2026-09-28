@@ -8,11 +8,16 @@ Reads one or more ``stats.csv`` files produced by
 * ``decoder_comparison_d<d>_<noise>.png`` / ``.svg`` — MWPM vs BP+OSD at a fixed
   distance (when >= 2 decoders are present).
 * ``summary.json`` — the reproduced headline numbers (estimated threshold,
-  finite-size fit ``p_th`` ± stderr, and Λ suppression ratios) per decoder, so
-  the README / EOI can cite exact values without re-deriving them.
+  finite-size fit ``p_th`` ± stderr, and Λ suppression ratios with the ``p`` each
+  one is taken at, ``lambda_p_phys``) per decoder, so the README / EOI can cite
+  exact values without re-deriving them.
 
-Usage:
-    python scripts/make_figures.py capstone/experiments/*/stats.csv --noise depolarizing
+Usage (the committed sweeps; pass one stats.csv per decoder):
+    python scripts/make_figures.py capstone/experiments/sweep-2026-06-19-*/stats.csv --noise depolarizing
+
+``--p-max P`` also prints, per decoder, the same fit restricted to the points with
+``p <= P``. This is a post-hoc check of the fit window (added on 2026-09-26, after the
+data was seen); it is printed only, so the figures and ``summary.json`` are unchanged.
 """
 
 from __future__ import annotations
@@ -20,13 +25,15 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 from pathlib import Path
 
 from qec_project.analysis.threshold import (
+    duplicate_cells,
     estimate_threshold,
     filter_points,
     fit_critical,
-    lambda_ratios,
+    lambda_ratios_with_p,
     load_points,
     plot_decoder_comparison,
     plot_threshold_crossing,
@@ -41,10 +48,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--noise", default="depolarizing")
     ap.add_argument("--out-dir", default=str(REPO / "capstone" / "figures"))
     ap.add_argument("--compare-distance", type=int, default=5)
+    ap.add_argument(
+        "--p-max", type=float, default=None,
+        help="also print the fit on p <= P only (post-hoc window check; not written to files)",
+    )
     args = ap.parse_args(argv)
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    dups = duplicate_cells(*args.csvs)
+    if dups:
+        lines = [
+            f"WARNING: {len(dups)} cells appear in more than one input CSV. Each copy is fitted "
+            "as a separate point, which shifts the fit and shrinks its error bar. Pass one "
+            "stats.csv per decoder (the committed data is capstone/experiments/sweep-2026-06-19-*).",
+        ]
+        for (dec, noise, d, p), paths in sorted(dups.items()):
+            lines.append(f"  {dec} d={d} p={p} ({noise}): " + ", ".join(map(str, paths)))
+        print("\n".join(lines), file=sys.stderr)
 
     points = filter_points(load_points(*args.csvs), noise=args.noise)
     if not points:
@@ -68,11 +90,15 @@ def main(argv: list[str] | None = None) -> int:
                         "amplitude": fit.amplitude, "log_rmse": fit.log_rmse}
         except ValueError:
             fit_info = None
-        lam = {f"{a}->{b}": v for (a, b), v in lambda_ratios(pts).items()}
+        lam_with_p = lambda_ratios_with_p(pts)
+        lam = {f"{a}->{b}": v for (a, b), (_, v) in lam_with_p.items()}
         summary["decoders"][decoder] = {  # type: ignore[index]
             "crossing_estimate": None if math.isnan(crossing) else crossing,
             "fit": fit_info,
             "lambda": lam,
+            # Λ is taken at the lowest p both distances share (see lambda_ratios_with_p);
+            # scripts/lambda_interval.py gives Λ at a chosen p with an interval.
+            "lambda_p_phys": {f"{a}->{b}": p for (a, b), (p, _) in lam_with_p.items()},
             "points": [
                 {"distance": p.distance, "p_phys": p.p_phys, "shots": p.shots,
                  "errors": p.errors, "p_log": p.p_log,
@@ -83,6 +109,15 @@ def main(argv: list[str] | None = None) -> int:
         cstr = "nan" if math.isnan(crossing) else f"{crossing:.4f}"
         fstr = "n/a" if fit_info is None else f"{fit_info['p_th']:.4f}±{fit_info['p_th_stderr']:.4f}"
         print(f"{decoder:>11}: crossing≈{cstr}  fit p_th={fstr}  Λ={lam}")
+        if args.p_max is not None:
+            window = [q for q in pts if q.p_phys <= args.p_max]
+            try:
+                wfit = fit_critical(window)
+                wstr = f"{wfit.p_th:.4f}±{wfit.p_th_stderr:.4f}"
+            except ValueError:
+                wstr = "n/a"
+            print(f"             post-hoc fit window p <= {args.p_max:g}: p_th={wstr} "
+                  f"({len(window)} points; printed only, not written to summary.json)")
         print(f"             wrote {fig.name} (+ .svg)")
 
     if len(decoders) >= 2:

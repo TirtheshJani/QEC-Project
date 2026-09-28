@@ -7,7 +7,7 @@ confidence interval, and offers the standard surface-code threshold tools:
 
 * :func:`estimate_threshold` — the crossing point of the ``p_L`` vs ``p`` curves.
 * :func:`lambda_ratios` — the sub-threshold error-suppression factor
-  ``Λ = p_L(d) / p_L(d+2)``.
+  ``Λ = p_L(d) / p_L(d+2)``; :func:`lambda_ratios_with_p` also returns the ``p`` used.
 * :func:`fit_critical` — the finite-size fit ``p_L = A * (p / p_th) ** ((d+1)/2)``.
 * :func:`plot_threshold_crossing` / :func:`plot_decoder_comparison` — figures.
 
@@ -31,13 +31,21 @@ from collections import defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import sinter
 
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
 logger = logging.getLogger(__name__)
 
 _MAX_LIKELIHOOD_FACTOR = 1000
+# Fixed salt for matplotlib's generated SVG element ids; with the date dropped
+# from the metadata, re-running make_figures.py on the same data gives
+# byte-identical SVGs instead of a diff on every run.
+_SVG_HASHSALT = "qec-project"
 
 
 @dataclass(frozen=True)
@@ -120,6 +128,30 @@ def load_points(*csv_paths: str | Path) -> list[LogicalErrorPoint]:
     return points
 
 
+def duplicate_cells(
+    *csv_paths: str | Path,
+) -> dict[tuple[str, str, int, float], list[Path]]:
+    """Return the ``(decoder, noise, distance, p_phys)`` cells found in more than one row.
+
+    Each sweep CSV holds one row per cell, so a repeat means two sweeps of the
+    same cell were passed together (e.g. a rerun next to the committed data).
+    :func:`load_points` would then treat them as independent points. Maps each
+    repeated cell to the files it came from, in input order.
+    """
+    seen: dict[tuple[str, str, int, float], list[Path]] = defaultdict(list)
+    for path in csv_paths:
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                key = (
+                    row["decoder"],
+                    row.get("noise", "depolarizing"),
+                    int(row["distance"]),
+                    float(row["p_phys"]),
+                )
+                seen[key].append(Path(path))
+    return {k: v for k, v in seen.items() if len(v) > 1}
+
+
 def filter_points(
     points: Iterable[LogicalErrorPoint], *, decoder: str | None = None, noise: str | None = None
 ) -> list[LogicalErrorPoint]:
@@ -171,10 +203,15 @@ def estimate_threshold(points: Sequence[LogicalErrorPoint]) -> float:
     return float(np.mean(crossings))
 
 
-def lambda_ratios(points: Sequence[LogicalErrorPoint]) -> dict[tuple[int, int], float]:
-    """Error-suppression factor ``Λ = p_L(d) / p_L(d+2)`` at the lowest shared ``p``."""
+def lambda_ratios_with_p(
+    points: Sequence[LogicalErrorPoint],
+) -> dict[tuple[int, int], tuple[float, float]]:
+    """``(p, Λ)`` per distance pair, with ``Λ = p_L(d) / p_L(d+2)`` at the lowest shared ``p``.
+
+    Cells with ``p_log = 0`` are skipped, so ``p`` can differ between pairs.
+    """
     by_d = _by_distance(points)
-    out: dict[tuple[int, int], float] = {}
+    out: dict[tuple[int, int], tuple[float, float]] = {}
     for d in sorted(by_d):
         if d + 2 not in by_d:
             continue
@@ -183,8 +220,13 @@ def lambda_ratios(points: Sequence[LogicalErrorPoint]) -> dict[tuple[int, int], 
             continue
         p = shared[0]
         if by_d[d + 2][p] > 0:
-            out[(d, d + 2)] = by_d[d][p] / by_d[d + 2][p]
+            out[(d, d + 2)] = (p, by_d[d][p] / by_d[d + 2][p])
     return out
+
+
+def lambda_ratios(points: Sequence[LogicalErrorPoint]) -> dict[tuple[int, int], float]:
+    """Error-suppression factor ``Λ = p_L(d) / p_L(d+2)`` at the lowest shared ``p``."""
+    return {pair: lam for pair, (_, lam) in lambda_ratios_with_p(points).items()}
 
 
 def fit_critical(points: Sequence[LogicalErrorPoint]) -> ThresholdFit:
@@ -231,6 +273,14 @@ def _yerr(group: Sequence[LogicalErrorPoint]) -> np.ndarray | None:
     return np.array([lo, hi])
 
 
+def _save_svg(fig: Figure, path: Path) -> None:
+    """Save ``fig`` as an SVG that is byte-identical across runs."""
+    import matplotlib
+
+    with matplotlib.rc_context({"svg.hashsalt": _SVG_HASHSALT}):
+        fig.savefig(path, metadata={"Date": None})
+
+
 def plot_threshold_crossing(
     points: Sequence[LogicalErrorPoint], *, out_path: str | Path, title: str | None = None
 ) -> Path:
@@ -259,7 +309,7 @@ def plot_threshold_crossing(
     fig.tight_layout()
     out = Path(out_path)
     fig.savefig(out, dpi=200)
-    fig.savefig(out.with_suffix(".svg"))
+    _save_svg(fig, out.with_suffix(".svg"))
     plt.close(fig)
     return out
 
@@ -300,6 +350,6 @@ def plot_decoder_comparison(
     fig.tight_layout()
     out = Path(out_path)
     fig.savefig(out, dpi=200)
-    fig.savefig(out.with_suffix(".svg"))
+    _save_svg(fig, out.with_suffix(".svg"))
     plt.close(fig)
     return out

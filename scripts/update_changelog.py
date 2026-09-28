@@ -46,7 +46,8 @@ def append_under(text: str, header: str, line: str) -> str:
     pattern = re.compile(rf"({re.escape(header)}\n)", re.MULTILINE)
     if not pattern.search(text):
         return text.rstrip() + f"\n\n{header}\n\n{line}\n"
-    return pattern.sub(rf"\1\n{line}\n", text, count=1)
+    # A function replacement, so backslashes in `line` are not read as template escapes.
+    return pattern.sub(lambda m: f"{m.group(1)}\n{line}\n", text, count=1)
 
 
 def append_accuracy_row(text: str, row: str) -> str:
@@ -66,7 +67,7 @@ def append_accuracy_row(text: str, row: str) -> str:
 def rewrite_status(text: str, paragraph: str) -> str:
     pat = re.compile(r"(## Current status\n)(.*?)(\n## )", re.DOTALL)
     if pat.search(text):
-        return pat.sub(rf"\1{paragraph}\n\3", text)
+        return pat.sub(lambda m: f"{m.group(1)}{paragraph}\n{m.group(3)}", text)
     return text.rstrip() + f"\n\n## Current status\n{paragraph}\n"
 
 

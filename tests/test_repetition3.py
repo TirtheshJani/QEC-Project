@@ -5,6 +5,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -154,6 +155,30 @@ def test_simulate_logical_error_rate_is_finite_and_bounded() -> None:
     rng = np.random.default_rng(seed=0)
     err = code.simulate_logical_error_rate(p=0.2, n_trials=128, rng=rng)
     assert 0.0 <= err <= 1.0
+
+
+def _analytic_average_infidelity(p: float) -> float:
+    """Exact average logical infidelity over the inputs {|0>, |1>, |+>, |->}.
+
+    Under depolarizing(p) each qubit has an X component (X or Y) with
+    probability q = p/2 and a Z component (Z or Y) with probability p/2.
+    |0> and |1> fail when a majority of qubits is bit-flipped: 3q^2 - 2q^3.
+    |+> and |-> fail when an odd number of qubits has a Z component, which the
+    code cannot see: (1 - (1 - p)^3) / 2.
+    """
+    q = p / 2
+    return 0.5 * (3 * q**2 - 2 * q**3) + 0.25 * (1 - (1 - p) ** 3)
+
+
+@pytest.mark.parametrize("p", [0.2, 0.9])
+def test_simulated_rate_matches_analytic_average_infidelity(p: float) -> None:
+    code = ThreeQubitBitFlipCode()
+    n_trials = 1000
+    expected = _analytic_average_infidelity(p)
+    rng = np.random.default_rng(seed=7)
+    err = code.simulate_logical_error_rate(p=p, n_trials=n_trials, rng=rng)
+    sigma = np.sqrt(expected * (1 - expected) / n_trials)
+    assert abs(err - expected) < 4 * sigma, f"p={p}: got {err}, expected {expected:.4f}"
 
 
 @settings(max_examples=5, deadline=None)

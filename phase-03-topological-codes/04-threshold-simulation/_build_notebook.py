@@ -13,29 +13,32 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE / "threshold_simulation.ipynb"
 
 
-def md(text: str) -> nbf.NotebookNode:
-    return nbf.v4.new_markdown_cell(text)
+def md(cell_id: str, text: str) -> nbf.NotebookNode:
+    # Fixed ids (the committed ones) keep a rebuild from rewriting every cell id.
+    return nbf.v4.new_markdown_cell(text, id=cell_id)
 
 
-def code(text: str) -> nbf.NotebookNode:
-    return nbf.v4.new_code_cell(text)
+def code(cell_id: str, text: str) -> nbf.NotebookNode:
+    return nbf.v4.new_code_cell(text, id=cell_id)
 
 
 cells: list[nbf.NotebookNode] = [
     md(
+        "c9c09a9c",
         """# Phase 3.4 — Threshold simulation & the decoder benchmark
 
 This is where Phase 3 becomes the capstone. We load the production sweeps written by
 `scripts/run_threshold_sweep.py` (in `capstone/experiments/`), reproduce the
 **threshold-crossing plot**, extract the threshold $p_\\mathrm{th}$ and the
 sub-threshold suppression factor $\\Lambda = p_L(d)/p_L(d+2)$, and put **MWPM vs
-BP+OSD** head to head on accuracy *and* latency.
+BP+OSD** head to head on accuracy *and* time per shot (Stim sampling plus decoding).
 
 Everything here uses the promoted analysis helpers in
 :mod:`qec_project.analysis.threshold`; the numbers match `CHANGELOG.md`'s accuracy
 table and `capstone/figures/summary.json` (same seed, same commit)."""
     ),
     code(
+        "51e8d907",
         """from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -52,18 +55,22 @@ repo = Path.cwd()
 while not (repo / "capstone").exists() and repo.parent != repo:
     repo = repo.parent
 exp = repo / "capstone" / "experiments"
-pm_csv = sorted(exp.glob("*pymatching*depolarizing*/stats.csv"))[-1]
-bp_csv = sorted(exp.glob("*bp-osd*depolarizing*/stats.csv"))[-1]
+# The committed sweeps behind the README numbers. A rerun writes new sweep-<date>-*
+# directories next to them; point these two paths there to analyse it instead.
+pm_csv = exp / "sweep-2026-06-19-pymatching-depolarizing" / "stats.csv"
+bp_csv = exp / "sweep-2026-06-19-bp-osd-depolarizing" / "stats.csv"
 points = load_points(pm_csv, bp_csv)
 print(f"loaded {len(points)} points from\\n  {pm_csv.parent.name}\\n  {bp_csv.parent.name}")"""
     ),
     md(
+        "4c58002c",
         """## The threshold crossing (MWPM)
 
 Below threshold, larger distance $\\Rightarrow$ lower logical error; the curves
 fan out. Above threshold the ordering inverts. They cross at $p_\\mathrm{th}$."""
     ),
     code(
+        "6f71018f",
         """def plot_crossing(points, title):
     by_d = {}
     for p in points:
@@ -90,6 +97,7 @@ pm = filter_points(points, decoder="pymatching")
 plot_crossing(pm, "Rotated surface code — MWPM (PyMatching)")"""
     ),
     md(
+        "76fe2c38",
         """## Threshold & suppression for both decoders
 
 `estimate_threshold` finds the curve crossing; `fit_critical` independently fits the
@@ -97,6 +105,7 @@ finite-size form $p_L = A\\,(p/p_\\mathrm{th})^{(d+1)/2}$. They agree to within 
 fit error — a good consistency check. $\\Lambda > 1$ confirms error suppression."""
     ),
     code(
+        "a7c40314",
         """for dec in ("pymatching", "bp-osd"):
     pts = filter_points(points, decoder=dec)
     cross = estimate_threshold(pts)
@@ -106,15 +115,20 @@ fit error — a good consistency check. $\\Lambda > 1$ confirms error suppressio
           f"± {fit.p_th_stderr:.4f} | Λ = {lam}")"""
     ),
     md(
-        """## Head to head: accuracy vs latency
+        "06bbb7cf",
+        """## Head to head: accuracy vs time per shot
 
-BP+OSD exploits the full hyperedge structure of the DEM, so it is **more accurate**
-(higher threshold, stronger suppression) than graph-based MWPM. But it is **far
-slower** — and the cost gap grows steeply with distance. For the *Decoding algorithm
-optimization* objective (real-time signal recovery), that latency scaling is the
+BP+OSD exploits the full hyperedge structure of the DEM, and on this data it has
+**lower $p_L$ at $d=5$** than graph-based MWPM: significantly lower (two-proportion
+$z > 2$) for $p = 0.005$ to $0.02$, on independently sampled (unpaired) shots. Its
+fitted threshold overlaps MWPM's within fit error. But it is **far slower**, and the
+cost gap grows steeply with distance. The timing below is wall time per shot for Stim
+sampling plus decoding, batched, not a decoder-only latency. For the *Decoding
+algorithm optimization* objective (real-time signal recovery), that scaling is the
 crux."""
     ),
     code(
+        "76aa33d0",
         """import csv
 from collections import defaultdict
 
@@ -139,13 +153,22 @@ for dec, pts in (("MWPM", pm), ("BP+OSD", filter_points(points, decoder="bp-osd"
     print(f"{dec:>7} d=5 @ p=0.005: p_L = {q.p_log:.2e}")"""
     ),
     md(
+        "a810ba5e",
         """## Result
 
-* **Threshold (uniform depolarizing).** MWPM $p_\\mathrm{th}\\approx 0.0119$;
-  BP+OSD $p_\\mathrm{th}\\approx 0.0132$ — BP+OSD's higher threshold and larger
-  $\\Lambda$ make it the more accurate decoder on this model.
-* **Latency.** BP+OSD is ~60$\\times$ slower than MWPM at $d=3$ and ~600$\\times$
-  at $d=5$ on identical hardware; the gap widens with distance.
+* **Threshold (uniform depolarizing).** The curves cross near
+  $p_\\mathrm{th}\\approx 0.0119$ (MWPM) and $0.0132$ (BP+OSD); the fits give
+  $0.0122\\pm0.0013$ ($d=3,5,7$) and $0.0134\\pm0.0015$ ($d=3,5$), which overlap
+  within fit error. BP+OSD's measured edge is lower $p_L$ at $d=5$: 11 to 35% lower
+  per shot for $p = 0.003$ to $0.01$ (35% at $p = 0.005$), significant only for
+  $p=0.005$ to $0.02$. The $\\Lambda$ printed above
+  is taken at $p=0.002$, where the cells hold 5 to 49 logical errors, so it does not
+  rank the decoders; `scripts/lambda_interval.py` gives $\\Lambda$ at $p=0.005$ with an
+  interval.
+* **Time per shot (sampling + decoding).** BP+OSD takes about 60$\\times$ as long as
+  MWPM at $d=3$ and about 600$\\times$ at $d=5$ on identical hardware (the table above
+  prints the committed values; MWPM's $d=3$ time varies about 2$\\times$ between
+  runs); the gap widens with distance.
 * **Takeaway for the capstone.** Accuracy and real-time feasibility pull in opposite
   directions. Quantifying that frontier under realistic noise is exactly the NRC
   *Decoding algorithm optimization* question — see `capstone/`.

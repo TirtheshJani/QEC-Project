@@ -3,9 +3,11 @@
 Phase 3. The rotated surface code is the workhorse of the capstone decoder
 benchmark. Circuits are built *programmatically* with
 :func:`stim.Circuit.generated` (a CLAUDE.md rule); any ``.stim`` / ``.dem``
-files are reproducibility artifacts, never inputs. The decomposed detector
-error model returned by :meth:`RotatedSurfaceCode.detector_error_model` is the
-object every decoder in :mod:`qec_project.decoders` consumes.
+files are reproducibility artifacts, never inputs. The decomposed (graphlike)
+detector error model returned by :meth:`RotatedSurfaceCode.detector_error_model`
+is what the MWPM decoder consumes; the BP+OSD path in
+:mod:`qec_project.decoders.harness` builds the undecomposed model, hyperedges
+included, from the same circuit.
 
 References (in ``docs/reading-list.md``):
 
@@ -82,5 +84,5 @@ class RotatedSurfaceCode:
         )
 
     def detector_error_model(self, noise: CircuitNoise) -> stim.DetectorErrorModel:
-        """Return the decomposed detector error model every decoder consumes."""
+        """Return the decomposed (graphlike) detector error model that MWPM consumes."""
         return self.circuit(noise).detector_error_model(decompose_errors=True)

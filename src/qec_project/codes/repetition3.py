@@ -33,11 +33,11 @@ from qec_project.noise.quantum import (
     PAULI_X,
     PAULI_Z,
     apply_channel_to_qubit,
-    depolarizing_channel,
+    depolarizing_kraus,
 )
 
 # Recovery table: (s0, s1) -> qubit index to flip with X (or -1 for "no flip").
-_SYNDROME_RECOVERY: dict[tuple[int, int], int] = {
+_SYNDROME_RECOVERY: dict[tuple[int, ...], int] = {
     (0, 0): -1,
     (1, 0): 0,
     (1, 1): 1,
@@ -137,7 +137,7 @@ class ThreeQubitBitFlipCode:
         ``simulate_logical_error_rate`` and stochastic channels added later.
         """
         del rng  # see docstring
-        K = depolarizing_channel(p)
+        K = depolarizing_kraus(p)
         out = rho
         for q in range(self.n_qubits):
             out = apply_channel_to_qubit(out, K, target=q, n_qubits=self.n_qubits)
@@ -204,7 +204,7 @@ class ThreeQubitBitFlipCode:
         )
         tr = np.real(np.trace(rho_log))
         if tr <= 0:
-            return 0.5 * np.eye(2, dtype=complex)
+            return 0.5 * np.eye(2, dtype=np.complex128)
         return rho_log / tr
 
     def simulate_logical_error_rate(
@@ -219,7 +219,10 @@ class ThreeQubitBitFlipCode:
         Per trial: sample one of {|0>, |1>, |+>, |->}, encode, apply
         independent single-qubit depolarizing(p), syndrome-extract, project
         onto the matching eigenspace, decode, read out the 2x2 logical
-        density matrix, declare failure iff <psi|rho_L|psi> < 0.5.
+        density matrix, then measure it in a basis containing psi: the trial
+        fails with probability 1 - <psi|rho_L|psi>. (A threshold rule such as
+        "fidelity < 0.5" is not an infidelity estimate, and it is decided by
+        floating-point roundoff on branches where the fidelity is exactly 1/2.)
         """
         if n_trials <= 0:
             raise ValueError("n_trials must be positive")
@@ -234,6 +237,6 @@ class ThreeQubitBitFlipCode:
             rho = self.decode(rho, syndrome=syn)
             rho_log = self._decode_to_logical_density_matrix(rho)
             fidelity = float(np.real(state_1q.conj() @ rho_log @ state_1q))
-            if fidelity < 0.5:
+            if rng.random() >= fidelity:
                 failures += 1
         return failures / n_trials
